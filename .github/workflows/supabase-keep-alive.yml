@@ -1,0 +1,29 @@
+name: Supabase keep-alive
+
+# Supabase pausa los proyectos gratuitos tras 1 semana sin actividad.
+# Este job hace una consulta liviana dos veces por semana para que nunca llegue a esa semana.
+on:
+  schedule:
+    - cron: '0 12 * * 1,4' # lunes y jueves, 12:00 UTC
+  workflow_dispatch: {} # permite ejecutarlo a mano desde la pestaña Actions
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          codigo=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/productos?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+
+          echo "Código de respuesta: $codigo"
+
+          if [ "$codigo" -ge 400 ]; then
+            echo "Supabase respondió con error. Revisa si el proyecto está pausado o si cambió la anon key."
+            exit 1
+          fi
