@@ -23,6 +23,10 @@ export class ListadoPedidos implements OnInit {
   protected readonly filtro = signal<Filtro>('todos');
   protected readonly busqueda = signal('');
 
+  protected readonly seleccionados = signal<ReadonlySet<string>>(new Set());
+  protected readonly eliminando = signal(false);
+  protected readonly errorEliminar = signal<string | null>(null);
+
   protected readonly conteo = computed(() => {
     const lista = this.pedidos();
     return {
@@ -50,8 +54,8 @@ export class ListadoPedidos implements OnInit {
     this.cargar();
   }
 
-  protected async cargar(): Promise<void> {
-    this.cargando.set(true);
+  protected async cargar(silencioso = false): Promise<void> {
+    if (!silencioso) this.cargando.set(true);
     this.error.set(null);
     try {
       this.pedidos.set(await this.pedidoService.listar());
@@ -59,6 +63,54 @@ export class ListadoPedidos implements OnInit {
       this.error.set('No se pudieron cargar los pedidos. Intenta de nuevo.');
     } finally {
       this.cargando.set(false);
+    }
+  }
+
+  protected estaSeleccionado(id: string): boolean {
+    return this.seleccionados().has(id);
+  }
+
+  protected alternarSeleccion(id: string): void {
+    const actual = new Set(this.seleccionados());
+    actual.has(id) ? actual.delete(id) : actual.add(id);
+    this.seleccionados.set(actual);
+  }
+
+  protected limpiarSeleccion(): void {
+    this.seleccionados.set(new Set());
+  }
+
+  protected async eliminarSeleccionados(): Promise<void> {
+    const ids = Array.from(this.seleccionados());
+    if (ids.length === 0 || this.eliminando()) return;
+    await this.eliminar(
+      ids,
+      `¿Eliminar ${ids.length} pedido${ids.length === 1 ? '' : 's'}? Esta acción no se puede deshacer.`,
+    );
+  }
+
+  protected async eliminarUno(id: string, evento: Event): Promise<void> {
+    evento.preventDefault();
+    evento.stopPropagation();
+    if (this.eliminando()) return;
+    await this.eliminar([id], `¿Eliminar el pedido ${id}? Esta acción no se puede deshacer.`);
+  }
+
+  private async eliminar(ids: string[], mensajeConfirmacion: string): Promise<void> {
+    if (!confirm(mensajeConfirmacion)) return;
+
+    this.eliminando.set(true);
+    this.errorEliminar.set(null);
+    try {
+      await this.pedidoService.eliminar(ids);
+      const restantes = new Set(this.seleccionados());
+      for (const id of ids) restantes.delete(id);
+      this.seleccionados.set(restantes);
+      await this.cargar(true);
+    } catch {
+      this.errorEliminar.set('No se pudieron eliminar los pedidos. Intenta de nuevo.');
+    } finally {
+      this.eliminando.set(false);
     }
   }
 }

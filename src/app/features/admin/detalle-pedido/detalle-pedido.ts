@@ -1,7 +1,8 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { PdfService } from '../../../core/services/pdf.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { Pedido } from '../../../shared/models/pedido.model';
 
@@ -15,6 +16,8 @@ export class DetallePedido implements OnInit {
   readonly id = input.required<string>();
 
   private readonly pedidoService = inject(PedidoService);
+  private readonly pdfService = inject(PdfService);
+  private readonly router = inject(Router);
   protected readonly moneda = environment.moneda;
 
   protected readonly pedido = signal<Pedido | null>(null);
@@ -27,6 +30,8 @@ export class DetallePedido implements OnInit {
   protected readonly editando = signal(false);
   protected readonly guardando = signal(false);
   protected readonly errorAccion = signal<string | null>(null);
+  protected readonly eliminando = signal(false);
+  protected readonly errorEliminar = signal<string | null>(null);
 
   ngOnInit(): void {
     this.cargar();
@@ -45,6 +50,36 @@ export class DetallePedido implements OnInit {
       this.error.set('No se pudo cargar el pedido. Intenta de nuevo.');
     } finally {
       this.cargando.set(false);
+    }
+  }
+
+  protected descargarFactura(): void {
+    const pedido = this.pedido();
+    if (pedido?.estado === 'finalizado') {
+      this.pdfService.descargarFactura(pedido);
+    }
+  }
+
+  protected async eliminarPedido(): Promise<void> {
+    const pedido = this.pedido();
+    if (!pedido || this.eliminando()) return;
+    if (
+      !confirm(
+        `¿Eliminar el pedido ${pedido.id}? Esta acción no se puede deshacer` +
+          (pedido.estado === 'finalizado' ? ' y borrará también su factura.' : '.'),
+      )
+    ) {
+      return;
+    }
+
+    this.eliminando.set(true);
+    this.errorEliminar.set(null);
+    try {
+      await this.pedidoService.eliminar([pedido.id]);
+      await this.router.navigateByUrl('/admin/pedidos');
+    } catch {
+      this.errorEliminar.set('No se pudo eliminar el pedido. Intenta de nuevo.');
+      this.eliminando.set(false);
     }
   }
 

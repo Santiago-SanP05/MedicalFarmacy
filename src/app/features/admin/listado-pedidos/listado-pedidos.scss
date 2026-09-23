@@ -77,6 +77,25 @@
   }
 }
 
+.barra-seleccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.barra-seleccion__acciones {
+  display: flex;
+  gap: 8px;
+}
+
 .lista {
   display: grid;
   gap: 10px;
@@ -84,16 +103,10 @@
 
 .fila {
   display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    'id estado'
-    'comprador total'
-    'fecha fecha';
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 4px 12px;
+  gap: 10px;
   padding: 14px 16px;
-  color: inherit;
-  text-decoration: none;
   transition:
     border-color 0.15s,
     box-shadow 0.15s,
@@ -104,6 +117,32 @@
     box-shadow: var(--shadow-hover);
     transform: translateY(-1px);
   }
+
+  &--seleccionada {
+    border-color: var(--primary);
+    box-shadow: var(--ring);
+  }
+}
+
+.fila__check {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.fila__link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'id estado'
+    'comprador total'
+    'fecha fecha';
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
 }
 
 .fila__id {
@@ -137,8 +176,33 @@
   font-size: 0.85rem;
 }
 
+.fila__borrar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 @media (min-width: 760px) {
-  .fila {
+  .fila__link {
     grid-template-columns: 110px 120px 1fr 150px 140px;
     grid-template-areas: 'id estado comprador fecha total';
   }

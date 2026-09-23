@@ -18,8 +18,15 @@
 }
 
 .fechas {
-  margin: 4px 0 22px;
+  margin: 4px 0 18px;
   font-size: 0.9rem;
+}
+
+.acciones-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .bloque {

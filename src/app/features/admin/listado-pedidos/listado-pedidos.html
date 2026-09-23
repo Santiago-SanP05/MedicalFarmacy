@@ -1,7 +1,7 @@
 <div class="encabezado">
   <div>
     <h1 class="page-title">Pedidos</h1>
-    <p class="muted">Busca por código o filtra por estado.</p>
+    <p class="muted">Busca por código, filtra por estado o elimina pedidos antiguos.</p>
   </div>
   <button type="button" class="btn btn-outline btn-sm" [disabled]="cargando()" (click)="cargar()">
     Actualizar
@@ -34,6 +34,29 @@
   </div>
 </div>
 
+@if (errorEliminar()) {
+  <div class="alert alert-error" role="alert">{{ errorEliminar() }}</div>
+}
+
+@if (seleccionados().size > 0) {
+  <div class="barra-seleccion">
+    <span>{{ seleccionados().size }} seleccionado{{ seleccionados().size === 1 ? '' : 's' }}</span>
+    <div class="barra-seleccion__acciones">
+      <button type="button" class="btn btn-outline btn-sm" (click)="limpiarSeleccion()">
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger-ghost btn-sm"
+        [disabled]="eliminando()"
+        (click)="eliminarSeleccionados()"
+      >
+        {{ eliminando() ? 'Eliminando…' : 'Eliminar seleccionados' }}
+      </button>
+    </div>
+  </div>
+}
+
 @if (cargando()) {
   <p class="estado" role="status">Cargando pedidos…</p>
 } @else if (error()) {
@@ -48,8 +71,16 @@
 } @else {
   <ul class="lista">
     @for (p of visibles(); track p.id) {
-      <li>
-        <a class="card fila" [routerLink]="['/admin/pedidos', p.id]">
+      <li class="card fila" [class.fila--seleccionada]="estaSeleccionado(p.id)">
+        <input
+          type="checkbox"
+          class="fila__check"
+          [attr.aria-label]="'Seleccionar pedido ' + p.id"
+          [checked]="estaSeleccionado(p.id)"
+          (click)="$event.stopPropagation()"
+          (change)="alternarSeleccion(p.id)"
+        />
+        <a class="fila__link" [routerLink]="['/admin/pedidos', p.id]">
           <span class="fila__id">{{ p.id }}</span>
           <span
             class="chip fila__estado"
@@ -64,6 +95,24 @@
           }}</span>
           <span class="muted fila__fecha">{{ p.fecha_creacion | date: 'dd/MM/yyyy h:mm a' }}</span>
         </a>
+        <button
+          type="button"
+          class="fila__borrar"
+          aria-label="Eliminar pedido {{ p.id }}"
+          [disabled]="eliminando()"
+          (click)="eliminarUno(p.id, $event)"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              d="M5 7h14M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m2 0-.8 12.1A2 2 0 0 1 16.2 21H7.8a2 2 0 0 1-2-1.9L5 7Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
       </li>
     }
   </ul>
