@@ -1,0 +1,25 @@
+@if (valido()) {
+  <section class="card confirmacion">
+    <h1 class="page-title">¡Pedido generado!</h1>
+    <p class="muted">Este es el código de tu pedido:</p>
+
+    <p class="codigo" aria-label="Código del pedido">{{ id() }}</p>
+
+    <p class="aviso">
+      Anótalo ahora y entrégaselo al administrador. No podrás volver a ver este código después de
+      salir de esta pantalla.
+    </p>
+
+    <div class="acciones">
+      <button type="button" class="btn btn-outline" (click)="copiar()">
+        {{ copiado() ? '¡Copiado!' : 'Copiar código' }}
+      </button>
+      <a routerLink="/" class="btn btn-primary">Volver al catálogo</a>
+    </div>
+  </section>
+} @else {
+  <div class="estado">
+    <p>El código del pedido no es válido.</p>
+    <a routerLink="/" class="btn btn-primary">Volver al catálogo</a>
+  </div>
+}

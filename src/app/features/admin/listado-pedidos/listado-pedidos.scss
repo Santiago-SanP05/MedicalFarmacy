@@ -1,0 +1,120 @@
+.encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.herramientas {
+  display: grid;
+  gap: 12px;
+  margin-block: 16px 20px;
+}
+
+.buscador {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-transform: uppercase;
+
+  &::placeholder {
+    text-transform: none;
+  }
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filtro {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+
+  &.activo {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--on-color);
+  }
+}
+
+.lista {
+  display: grid;
+  gap: 10px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'id estado'
+    'comprador total'
+    'fecha fecha';
+  align-items: center;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--primary);
+  }
+}
+
+.fila__id {
+  grid-area: id;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.fila__estado {
+  grid-area: estado;
+  justify-self: end;
+}
+
+.fila__comprador {
+  grid-area: comprador;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fila__total {
+  grid-area: total;
+  font-weight: 700;
+}
+
+.fila__fecha {
+  grid-area: fecha;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 760px) {
+  .fila {
+    grid-template-columns: 110px 120px 1fr 150px 140px;
+    grid-template-areas: 'id estado comprador fecha total';
+  }
+
+  .fila__total {
+    text-align: right;
+  }
+}

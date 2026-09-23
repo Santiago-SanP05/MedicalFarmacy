@@ -1,0 +1,72 @@
+<h1 class="page-title">Tu carrito</h1>
+
+@if (carrito.items().length === 0) {
+  <div class="estado">
+    <p>Tu carrito está vacío.</p>
+    <a routerLink="/" class="btn btn-primary">Ver catálogo</a>
+  </div>
+} @else {
+  <div class="carrito-layout">
+    <ul class="lineas">
+      @for (item of carrito.items(); track item.producto.id) {
+        <li class="card linea">
+          <div class="linea__info">
+            <div class="linea__img">
+              <app-producto-imagen [url]="item.producto.imagen_url" [alt]="item.producto.nombre" />
+            </div>
+            <div>
+              <h2>{{ item.producto.nombre }}</h2>
+              <p class="muted">
+                {{ item.producto.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }} c/u
+              </p>
+            </div>
+          </div>
+          <app-cantidad-stepper
+            [cantidad]="item.cantidad"
+            (cambio)="carrito.cambiarCantidad(item.producto.id, $event)"
+          />
+          <strong class="linea__subtotal">
+            {{
+              item.producto.precio * item.cantidad | currency: moneda : 'symbol-narrow' : '1.0-0'
+            }}
+          </strong>
+          <button
+            type="button"
+            class="btn btn-danger-ghost btn-sm"
+            (click)="carrito.quitar(item.producto.id)"
+          >
+            Quitar
+          </button>
+        </li>
+      }
+    </ul>
+
+    <aside class="card resumen">
+      <h2>Resumen</h2>
+      <div class="resumen__total">
+        <span>Total</span>
+        <strong>{{ carrito.total() | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+      </div>
+      <p class="muted">
+        Al generar el pedido recibirás un código de 4 caracteres. Entrégaselo al administrador para
+        completar tu compra.
+      </p>
+
+      @if (error()) {
+        <div class="alert alert-error" role="alert">{{ error() }}</div>
+      }
+
+      <button
+        type="button"
+        class="btn btn-primary btn-block"
+        [disabled]="enviando()"
+        (click)="generarPedido()"
+      >
+        {{ enviando() ? 'Generando pedido…' : 'Generar pedido' }}
+      </button>
+      <button type="button" class="btn btn-danger-ghost btn-block" (click)="carrito.vaciar()">
+        Vaciar carrito
+      </button>
+    </aside>
+  </div>
+}

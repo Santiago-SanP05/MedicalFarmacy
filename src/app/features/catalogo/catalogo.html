@@ -1,0 +1,63 @@
+<h1 class="page-title">Catálogo</h1>
+<p class="muted">Agrega productos a tu carrito y genera tu pedido.</p>
+
+<div class="buscador">
+  <input
+    type="search"
+    placeholder="Buscar producto…"
+    aria-label="Buscar producto"
+    [value]="busqueda()"
+    (input)="busqueda.set($any($event.target).value)"
+  />
+</div>
+
+@if (cargando()) {
+  <p class="estado" role="status">Cargando productos…</p>
+} @else if (error()) {
+  <div class="alert alert-error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (filtrados().length === 0) {
+  <p class="estado">
+    {{
+      busqueda() ? 'Ningún producto coincide con tu búsqueda.' : 'Aún no hay productos disponibles.'
+    }}
+  </p>
+} @else {
+  <ul class="grid-productos">
+    @for (p of filtrados(); track p.id) {
+      <li class="card producto">
+        <div class="producto__img">
+          <app-producto-imagen [url]="p.imagen_url" [alt]="p.nombre" />
+        </div>
+        <div class="producto__cuerpo">
+          <h2>{{ p.nombre }}</h2>
+          @if (p.descripcion) {
+            <p class="muted">{{ p.descripcion }}</p>
+          }
+        </div>
+        <div class="producto__pie">
+          <span class="precio">{{ p.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span>
+          @if (cantidadEn(p.id); as cantidad) {
+            <app-cantidad-stepper
+              [cantidad]="cantidad"
+              (cambio)="carrito.cambiarCantidad(p.id, $event)"
+            />
+          } @else {
+            <button type="button" class="btn btn-primary btn-sm" (click)="carrito.agregar(p)">
+              Agregar
+            </button>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
+
+@if (carrito.cantidadTotal() > 0) {
+  <a routerLink="/carrito" class="barra-carrito">
+    <span>Ver carrito ({{ carrito.cantidadTotal() }})</span>
+    <strong>{{ carrito.total() | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+  </a>
+}

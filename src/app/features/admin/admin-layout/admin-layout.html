@@ -1,0 +1,14 @@
+<div class="admin-bar">
+  <nav aria-label="Administración">
+    <a routerLink="/admin/pedidos" routerLinkActive="active">Pedidos</a>
+    <a routerLink="/admin/productos" routerLinkActive="active">Productos</a>
+  </nav>
+  <div class="admin-bar__sesion">
+    @if (auth.sesion()?.user?.email; as correo) {
+      <span class="muted correo">{{ correo }}</span>
+    }
+    <button type="button" class="btn btn-outline btn-sm" (click)="salir()">Cerrar sesión</button>
+  </div>
+</div>
+
+<router-outlet />

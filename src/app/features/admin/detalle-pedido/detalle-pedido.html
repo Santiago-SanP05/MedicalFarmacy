@@ -1,0 +1,112 @@
+<a routerLink="/admin/pedidos" class="volver">← Volver a pedidos</a>
+
+@if (cargando()) {
+  <p class="estado" role="status">Cargando pedido…</p>
+} @else if (error()) {
+  <div class="alert alert-error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (noEncontrado()) {
+  <p class="estado">Pedido no encontrado. Revisa que el código esté bien escrito.</p>
+} @else if (pedido(); as p) {
+  <header class="cabecera">
+    <h1 class="page-title">Pedido <span class="codigo">{{ p.id }}</span></h1>
+    <span
+      class="chip"
+      [class.chip-pendiente]="p.estado === 'pendiente'"
+      [class.chip-finalizado]="p.estado === 'finalizado'"
+    >
+      {{ p.estado === 'pendiente' ? 'Pendiente' : 'Finalizado' }}
+    </span>
+  </header>
+  <p class="muted fechas">
+    Creado: {{ p.fecha_creacion | date: 'dd/MM/yyyy h:mm a' }}
+    @if (p.fecha_finalizacion) {
+      · Finalizado: {{ p.fecha_finalizacion | date: 'dd/MM/yyyy h:mm a' }}
+    }
+  </p>
+
+  <section class="card bloque">
+    <h2>Productos</h2>
+    <ul class="items">
+      @for (item of p.items_pedido ?? []; track item.id) {
+        <li>
+          <span class="items__nombre">{{ item.nombre_producto }}</span>
+          <span class="muted">
+            {{ item.cantidad }} ×
+            {{ item.precio_unitario | currency: moneda : 'symbol-narrow' : '1.0-0' }}
+          </span>
+          <strong>{{ item.subtotal | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+        </li>
+      }
+    </ul>
+    <div class="total">
+      <span>Total</span>
+      <strong>{{ p.total | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+    </div>
+  </section>
+
+  <section class="card bloque">
+    <h2>Datos del comprador</h2>
+
+    @if (p.estado === 'pendiente' || editando()) {
+      <form (submit)="enviar($event)">
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input
+            id="nombre"
+            type="text"
+            autocomplete="off"
+            required
+            [value]="nombre()"
+            (input)="nombre.set($any($event.target).value)"
+          />
+        </div>
+        <div class="field">
+          <label for="telefono">Teléfono</label>
+          <input
+            id="telefono"
+            type="tel"
+            inputmode="tel"
+            autocomplete="off"
+            required
+            [value]="telefono()"
+            (input)="telefono.set($any($event.target).value)"
+          />
+        </div>
+
+        @if (errorAccion()) {
+          <div class="alert alert-error" role="alert">{{ errorAccion() }}</div>
+        }
+
+        <div class="acciones">
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            {{
+              guardando()
+                ? 'Guardando…'
+                : p.estado === 'pendiente'
+                  ? 'Finalizar pedido'
+                  : 'Guardar cambios'
+            }}
+          </button>
+          @if (editando()) {
+            <button type="button" class="btn btn-outline" (click)="cancelarEdicion()">
+              Cancelar
+            </button>
+          }
+        </div>
+      </form>
+    } @else {
+      <dl class="datos">
+        <dt>Nombre</dt>
+        <dd>{{ p.comprador?.nombre }}</dd>
+        <dt>Teléfono</dt>
+        <dd>{{ p.comprador?.telefono }}</dd>
+      </dl>
+      <button type="button" class="btn btn-outline btn-sm" (click)="iniciarEdicion()">
+        Editar datos
+      </button>
+    }
+  </section>
+}

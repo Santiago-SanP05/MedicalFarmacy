@@ -1,0 +1,65 @@
+<div class="encabezado">
+  <div>
+    <h1 class="page-title">Productos</h1>
+    <p class="muted">Los productos desactivados no aparecen en el catálogo.</p>
+  </div>
+  <a routerLink="/admin/productos/nuevo" class="btn btn-primary btn-sm">Nuevo producto</a>
+</div>
+
+<input
+  type="search"
+  class="buscador"
+  placeholder="Buscar producto…"
+  aria-label="Buscar producto"
+  [value]="busqueda()"
+  (input)="busqueda.set($any($event.target).value)"
+/>
+
+@if (errorAccion()) {
+  <div class="alert alert-error" role="alert">{{ errorAccion() }}</div>
+}
+
+@if (cargando()) {
+  <p class="estado" role="status">Cargando productos…</p>
+} @else if (error()) {
+  <div class="alert alert-error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (visibles().length === 0) {
+  <p class="estado">
+    {{ busqueda() ? 'Ningún producto coincide con tu búsqueda.' : 'Aún no hay productos.' }}
+  </p>
+} @else {
+  <ul class="lista">
+    @for (p of visibles(); track p.id) {
+      <li class="card fila" [class.inactivo]="!p.activo">
+        <div class="fila__img">
+          <app-producto-imagen [url]="p.imagen_url" [alt]="p.nombre" />
+        </div>
+        <div class="fila__info">
+          <h2>{{ p.nombre }}</h2>
+          <p class="muted">{{ p.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }}</p>
+          <span class="chip" [class.chip-finalizado]="p.activo" [class.chip-inactivo]="!p.activo">
+            {{ p.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <div class="fila__acciones">
+          <a [routerLink]="['/admin/productos', p.id, 'editar']" class="btn btn-outline btn-sm">
+            Editar
+          </a>
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-danger-ghost]="p.activo"
+            [class.btn-outline]="!p.activo"
+            [disabled]="accionEnCurso() === p.id"
+            (click)="cambiarEstado(p)"
+          >
+            {{ p.activo ? 'Desactivar' : 'Activar' }}
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+}

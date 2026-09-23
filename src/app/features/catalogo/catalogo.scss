@@ -1,0 +1,81 @@
+.buscador {
+  margin-block: 16px 20px;
+
+  input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+  }
+}
+
+.grid-productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.producto {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.92rem;
+  }
+}
+
+.producto__img {
+  aspect-ratio: 4 / 3;
+  border-bottom: 1px solid var(--border);
+}
+
+.producto__cuerpo {
+  flex: 1;
+  padding: 16px 18px 0;
+}
+
+.producto__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 18px;
+}
+
+.precio {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.barra-carrito {
+  position: fixed;
+  inset: auto 16px 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: var(--primary);
+  color: var(--on-color);
+  text-decoration: none;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 35%, transparent);
+
+  &:hover {
+    background: var(--primary-dark);
+  }
+}

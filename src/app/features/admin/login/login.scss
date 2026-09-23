@@ -1,0 +1,20 @@
+.login {
+  max-width: 420px;
+  margin: 24px auto 0;
+  padding: 28px 24px;
+
+  p {
+    margin: 0 0 20px;
+  }
+}
+
+form {
+  display: grid;
+  gap: 16px;
+}
+
+.volver {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 0.95rem;
+}

@@ -1,0 +1,70 @@
+<div class="encabezado">
+  <div>
+    <h1 class="page-title">Pedidos</h1>
+    <p class="muted">Busca por código o filtra por estado.</p>
+  </div>
+  <button type="button" class="btn btn-outline btn-sm" [disabled]="cargando()" (click)="cargar()">
+    Actualizar
+  </button>
+</div>
+
+<div class="herramientas">
+  <input
+    type="search"
+    class="buscador"
+    maxlength="4"
+    placeholder="Código del pedido (4 caracteres)"
+    aria-label="Buscar pedido por código"
+    [value]="busqueda()"
+    (input)="busqueda.set($any($event.target).value)"
+  />
+
+  <div class="filtros" role="group" aria-label="Filtrar por estado">
+    @for (f of filtros; track f.valor) {
+      <button
+        type="button"
+        class="filtro"
+        [class.activo]="filtro() === f.valor"
+        [attr.aria-pressed]="filtro() === f.valor"
+        (click)="filtro.set(f.valor)"
+      >
+        {{ f.etiqueta }} ({{ conteo()[f.valor] }})
+      </button>
+    }
+  </div>
+</div>
+
+@if (cargando()) {
+  <p class="estado" role="status">Cargando pedidos…</p>
+} @else if (error()) {
+  <div class="alert alert-error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (visibles().length === 0) {
+  <p class="estado">
+    {{ busqueda() ? 'Pedido no encontrado.' : 'No hay pedidos en esta vista.' }}
+  </p>
+} @else {
+  <ul class="lista">
+    @for (p of visibles(); track p.id) {
+      <li>
+        <a class="card fila" [routerLink]="['/admin/pedidos', p.id]">
+          <span class="fila__id">{{ p.id }}</span>
+          <span
+            class="chip fila__estado"
+            [class.chip-pendiente]="p.estado === 'pendiente'"
+            [class.chip-finalizado]="p.estado === 'finalizado'"
+          >
+            {{ p.estado === 'pendiente' ? 'Pendiente' : 'Finalizado' }}
+          </span>
+          <span class="fila__comprador">{{ p.comprador?.nombre ?? 'Sin datos del comprador' }}</span>
+          <span class="fila__total">{{
+            p.total | currency: moneda : 'symbol-narrow' : '1.0-0'
+          }}</span>
+          <span class="muted fila__fecha">{{ p.fecha_creacion | date: 'dd/MM/yyyy h:mm a' }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+}

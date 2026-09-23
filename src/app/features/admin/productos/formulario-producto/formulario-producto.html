@@ -1,0 +1,95 @@
+<a routerLink="/admin/productos" class="volver">← Volver a productos</a>
+
+<h1 class="page-title">{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+
+@if (cargando()) {
+  <p class="estado" role="status">Cargando producto…</p>
+} @else if (noEncontrado()) {
+  <p class="estado">Producto no encontrado.</p>
+} @else {
+  <form class="card formulario" (submit)="guardar($event)">
+    <div class="field">
+      <label for="nombre">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        required
+        autocomplete="off"
+        [value]="nombre()"
+        (input)="nombre.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field">
+      <label for="descripcion">Descripción (opcional)</label>
+      <textarea
+        id="descripcion"
+        rows="3"
+        [value]="descripcion()"
+        (input)="descripcion.set($any($event.target).value)"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label for="precio">Precio</label>
+      <input
+        id="precio"
+        type="number"
+        inputmode="decimal"
+        min="0"
+        step="any"
+        required
+        [value]="precio()"
+        (input)="precio.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field">
+      <span class="etiqueta">Imagen (JPG, PNG o WebP, máx. 2 MB)</span>
+      <div class="imagen">
+        <div class="imagen__vista">
+          <app-producto-imagen [url]="imagenMostrada()" [alt]="nombre() || 'Producto'" />
+        </div>
+        <div class="imagen__acciones">
+          <label class="btn btn-outline btn-sm">
+            {{ imagenMostrada() ? 'Cambiar imagen' : 'Subir imagen' }}
+            <input
+              type="file"
+              class="oculto"
+              [accept]="tiposPermitidos"
+              (change)="seleccionarArchivo($event)"
+            />
+          </label>
+          @if (imagenMostrada()) {
+            <button type="button" class="btn btn-danger-ghost btn-sm" (click)="descartarImagen()">
+              Quitar imagen
+            </button>
+          }
+        </div>
+      </div>
+      @if (errorImagen()) {
+        <p class="error-texto" role="alert">{{ errorImagen() }}</p>
+      }
+    </div>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [checked]="activo()"
+        (change)="activo.set($any($event.target).checked)"
+      />
+      <span>Activo (visible en el catálogo)</span>
+    </label>
+
+    @if (error()) {
+      <div class="alert alert-error" role="alert">{{ error() }}</div>
+    }
+
+    <div class="acciones">
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar producto' }}
+      </button>
+      <a routerLink="/admin/productos" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+}

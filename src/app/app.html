@@ -1,0 +1,46 @@
+<header class="topbar">
+  <div class="container topbar__inner">
+    <a routerLink="/" class="brand" aria-label="MedicalShop, ir al catálogo">
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+        <rect width="24" height="24" rx="6" fill="currentColor" />
+        <path
+          d="M12 6v12M6 12h12"
+          style="stroke: var(--on-color)"
+          stroke-width="3"
+          stroke-linecap="round"
+        />
+      </svg>
+      <span>Medical<strong>Shop</strong></span>
+    </a>
+
+    @if (!enAdmin()) {
+      <nav class="topbar__nav">
+        <a routerLink="/carrito" routerLinkActive="active" class="cart-link">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path
+              d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L19 8H6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="9" cy="19" r="1.4" fill="currentColor" />
+            <circle cx="17" cy="19" r="1.4" fill="currentColor" />
+          </svg>
+          <span>Carrito</span>
+          @if (carrito.cantidadTotal() > 0) {
+            <span class="badge" aria-label="{{ carrito.cantidadTotal() }} productos en el carrito">{{
+              carrito.cantidadTotal()
+            }}</span>
+          }
+        </a>
+        <a routerLink="/admin/login" class="admin-link">Admin</a>
+      </nav>
+    }
+  </div>
+</header>
+
+<main class="container page">
+  <router-outlet />
+</main>

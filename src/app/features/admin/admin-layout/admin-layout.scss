@@ -1,0 +1,42 @@
+.admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+nav a {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover,
+  &.active {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+  }
+}
+
+.admin-bar__sesion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.correo {
+  display: none;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 620px) {
+  .correo {
+    display: inline;
+  }
+}

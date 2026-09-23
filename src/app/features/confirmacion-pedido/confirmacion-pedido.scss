@@ -1,0 +1,36 @@
+.confirmacion {
+  max-width: 520px;
+  margin: 24px auto 0;
+  padding: 32px 24px;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.codigo {
+  margin: 16px 0 !important;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: clamp(2.5rem, 14vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding-left: calc(16px + 0.2em);
+  user-select: all;
+}
+
+.aviso {
+  margin-bottom: 24px !important;
+  font-size: 0.95rem;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
