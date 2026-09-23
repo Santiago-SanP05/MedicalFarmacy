@@ -28,7 +28,7 @@
   </p>
 
   <section class="card bloque">
-    <h2>Productos</h2>
+    <h2 class="section-title">Productos</h2>
     <ul class="items">
       @for (item of p.items_pedido ?? []; track item.id) {
         <li>
@@ -48,7 +48,7 @@
   </section>
 
   <section class="card bloque">
-    <h2>Datos del comprador</h2>
+    <h2 class="section-title">Datos del comprador</h2>
 
     @if (p.estado === 'pendiente' || editando()) {
       <form (submit)="enviar($event)">

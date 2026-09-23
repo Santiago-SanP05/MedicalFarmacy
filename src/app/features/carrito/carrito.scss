@@ -12,7 +12,7 @@
 
   .resumen {
     position: sticky;
-    top: 80px;
+    top: 96px;
   }
 }
 
@@ -27,9 +27,11 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
+  transition: box-shadow 0.15s;
 
   h2 {
-    font-size: 1.05rem;
+    font-size: 1.02rem;
+    font-weight: 600;
   }
 
   p {
@@ -51,11 +53,12 @@
   height: 64px;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .linea__subtotal {
   text-align: right;
+  font-weight: 700;
 }
 
 .linea .btn-danger-ghost {
@@ -69,9 +72,19 @@
 }
 
 .resumen {
+  position: relative;
   display: grid;
   gap: 14px;
-  padding: 20px;
+  padding: 22px 20px 20px;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+  }
 
   p {
     margin: 0;
@@ -83,10 +96,14 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  font-size: 1.1rem;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  font-size: 1.02rem;
 
   strong {
     font-size: 1.5rem;
+    letter-spacing: -0.01em;
     color: var(--primary-dark);
   }
 }

@@ -18,7 +18,7 @@ import { Component, input, output } from '@angular/core';
       display: inline-flex;
       align-items: center;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-sm);
       background: var(--surface);
       overflow: hidden;
     }
@@ -32,6 +32,7 @@ import { Component, input, output } from '@angular/core';
       font-size: 1.25rem;
       font-weight: 600;
       cursor: pointer;
+      transition: background 0.15s;
     }
 
     button:hover {

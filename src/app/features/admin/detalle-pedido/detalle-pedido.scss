@@ -12,31 +12,35 @@
 }
 
 .codigo {
-  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.1em;
+  color: var(--primary-dark);
 }
 
 .fechas {
-  margin: 4px 0 20px;
+  margin: 4px 0 22px;
   font-size: 0.9rem;
 }
 
 .bloque {
   margin-bottom: 16px;
-  padding: 20px;
-
-  h2 {
-    margin-bottom: 14px;
-    font-size: 1.1rem;
-  }
+  padding: 22px;
 }
 
 .items li {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 2px 12px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  .items__nombre {
+    font-weight: 600;
+  }
 
   .muted {
     grid-row: 2;
@@ -54,11 +58,15 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-top: 14px;
-  font-size: 1.1rem;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  font-size: 1.02rem;
 
   strong {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
     color: var(--primary-dark);
   }
 }
@@ -78,7 +86,7 @@ form {
 .datos {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 8px 16px;
+  gap: 10px 16px;
   margin: 0 0 16px;
 
   dt {

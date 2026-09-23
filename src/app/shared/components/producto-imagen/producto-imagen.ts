@@ -41,7 +41,7 @@ import { Component, input, signal } from '@angular/core';
       width: 100%;
       height: 100%;
       background: var(--primary-soft);
-      color: var(--primary);
+      color: var(--primary-dark);
     }
   `,
 })
