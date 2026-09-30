@@ -28,8 +28,8 @@
 
 .grid-productos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .producto {
@@ -42,47 +42,107 @@
     border-color 0.18s;
 
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-hover);
     border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
   }
 
   h2 {
-    font-size: 1.05rem;
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: -0.005em;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     margin-bottom: 4px;
   }
 
   p {
+    display: none;
     margin: 0;
     font-size: 0.9rem;
   }
 }
 
 .producto__img {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   border-bottom: 1px solid var(--border);
 }
 
 .producto__cuerpo {
   flex: 1;
-  padding: 16px 18px 0;
+  padding: 10px 10px 0;
 }
 
 .producto__pie {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 18px 18px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 10px;
+
+  app-cantidad-stepper {
+    align-self: center;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }
 
 .precio {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--primary-dark);
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .grid-productos {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+  }
+
+  .producto:hover {
+    transform: translateY(-3px);
+  }
+
+  .producto h2 {
+    display: block;
+    overflow: visible;
+    font-size: 1.05rem;
+  }
+
+  .producto p {
+    display: block;
+  }
+
+  .producto__img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .producto__cuerpo {
+    padding: 16px 18px 0;
+  }
+
+  .producto__pie {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 18px;
+
+    .btn {
+      width: auto;
+    }
+  }
+
+  .precio {
+    font-size: 1.2rem;
+    text-align: left;
+  }
 }
 
 .barra-carrito {

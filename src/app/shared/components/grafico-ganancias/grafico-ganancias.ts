@@ -92,8 +92,9 @@ import { PuntoGrafico } from '../../models/ganancia.model';
 
     .columna {
       display: flex;
-      flex: 1 0 36px;
-      min-width: 36px;
+      flex: 1 0 44px;
+      min-width: 44px;
+      max-width: 64px;
       height: 100%;
       flex-direction: column;
       align-items: center;
@@ -133,8 +134,13 @@ import { PuntoGrafico } from '../../models/ganancia.model';
     }
 
     .etiqueta {
+      overflow: hidden;
+      max-width: 100%;
       color: var(--muted);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
+      line-height: 1.2;
+      text-align: center;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
   `,
