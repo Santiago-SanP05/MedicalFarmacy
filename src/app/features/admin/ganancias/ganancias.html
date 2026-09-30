@@ -1,0 +1,167 @@
+<div class="encabezado">
+  <div>
+    <h1 class="page-title">Ganancias</h1>
+    <p class="muted">
+      Calculadas con el % de ganancia de cada producto sobre sus pedidos finalizados.
+    </p>
+  </div>
+  <button type="button" class="btn btn-outline btn-sm" [disabled]="cargando()" (click)="cargar()">
+    Actualizar
+  </button>
+</div>
+
+<div class="vista-toggle" role="group" aria-label="Tipo de vista">
+  <button
+    type="button"
+    class="pill"
+    [class.activo]="vista() === 'tarjetas'"
+    [attr.aria-pressed]="vista() === 'tarjetas'"
+    (click)="cambiarVista('tarjetas')"
+  >
+    Tarjetas
+  </button>
+  <button
+    type="button"
+    class="pill"
+    [class.activo]="vista() === 'graficos'"
+    [attr.aria-pressed]="vista() === 'graficos'"
+    (click)="cambiarVista('graficos')"
+  >
+    Gráficos
+  </button>
+</div>
+
+@if (cargando()) {
+  <p class="estado" role="status">Cargando ganancias…</p>
+} @else if (error()) {
+  <div class="alert alert-error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (resumen(); as r) {
+  @if (vista() === 'tarjetas') {
+    <div class="grid-tarjetas">
+      <section class="card tarjeta">
+        <div class="tarjeta__cabecera">
+          <span class="tarjeta__icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path
+                d="M12 7v5l3 2"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+          </span>
+          <h2 class="section-title">Hoy</h2>
+        </div>
+
+        <div class="tarjeta__ganancia">
+          <span class="muted">Ganancia</span>
+          <strong>{{ r.ganancia_hoy | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+        </div>
+
+        <div class="tarjeta__pie">
+          <span class="muted"
+            >Ventas: {{ r.ventas_hoy | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span
+          >
+          <span class="chip chip-finalizado"
+            >{{ margen(r.ventas_hoy, r.ganancia_hoy) | number: '1.0-1' }}% margen</span
+          >
+        </div>
+      </section>
+
+      <section class="card tarjeta">
+        <div class="tarjeta__cabecera">
+          <span class="tarjeta__icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <rect
+                x="4"
+                y="5.5"
+                width="16"
+                height="15"
+                rx="2.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M4 10h16M8 3.5v3M16 3.5v3"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </span>
+          <h2 class="section-title">Este mes</h2>
+        </div>
+
+        <div class="tarjeta__ganancia">
+          <span class="muted">Ganancia</span>
+          <strong>{{ r.ganancia_mes | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+        </div>
+
+        <div class="tarjeta__pie">
+          <span class="muted"
+            >Ventas: {{ r.ventas_mes | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span
+          >
+          <span class="chip chip-finalizado"
+            >{{ margen(r.ventas_mes, r.ganancia_mes) | number: '1.0-1' }}% margen</span
+          >
+        </div>
+      </section>
+    </div>
+  } @else {
+    <div class="periodo-toggle" role="group" aria-label="Periodo del gráfico">
+      <button
+        type="button"
+        class="pill pill-sm"
+        [class.activo]="periodo() === 'diario'"
+        [attr.aria-pressed]="periodo() === 'diario'"
+        (click)="cambiarPeriodo('diario')"
+      >
+        Últimos 14 días
+      </button>
+      <button
+        type="button"
+        class="pill pill-sm"
+        [class.activo]="periodo() === 'mensual'"
+        [attr.aria-pressed]="periodo() === 'mensual'"
+        (click)="cambiarPeriodo('mensual')"
+      >
+        Últimos 6 meses
+      </button>
+    </div>
+
+    @if (cargandoSerie()) {
+      <p class="estado" role="status">Cargando gráfico…</p>
+    } @else if (errorSerie()) {
+      <div class="alert alert-error" role="alert">
+        <span>{{ errorSerie() }}</span>
+        <button type="button" class="btn btn-outline btn-sm" (click)="cargarSerie()">
+          Reintentar
+        </button>
+      </div>
+    } @else {
+      <div class="card grafico-card">
+        <div class="grafico-card__cabecera">
+          <span class="muted">{{
+            periodo() === 'diario' ? 'Ganancia · últimos 14 días' : 'Ganancia · últimos 6 meses'
+          }}</span>
+          <strong>{{ totalSerie().ganancia | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+        </div>
+        <app-grafico-ganancias [datos]="serie()" [moneda]="moneda" />
+      </div>
+    }
+  }
+
+  <p class="muted nota">
+    Solo cuentan los pedidos <strong>finalizados</strong>. La ganancia usa el % que tenía cada
+    producto en el momento del pedido, así que si luego cambias el porcentaje, no se altera lo ya
+    vendido.
+  </p>
+}

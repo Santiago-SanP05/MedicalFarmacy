@@ -46,6 +46,11 @@ export const routes: Routes = [
           import('./features/admin/detalle-pedido/detalle-pedido').then((m) => m.DetallePedido),
       },
       {
+        path: 'ganancias',
+        title: 'Ganancias · MedicalShop',
+        loadComponent: () => import('./features/admin/ganancias/ganancias').then((m) => m.Ganancias),
+      },
+      {
         path: 'productos',
         title: 'Productos · MedicalShop',
         loadComponent: () =>

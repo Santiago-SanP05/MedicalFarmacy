@@ -2,6 +2,7 @@
   <nav aria-label="Administración">
     <a routerLink="/admin/pedidos" routerLinkActive="active">Pedidos</a>
     <a routerLink="/admin/productos" routerLinkActive="active">Productos</a>
+    <a routerLink="/admin/ganancias" routerLinkActive="active">Ganancias</a>
   </nav>
   <div class="admin-bar__sesion">
     @if (auth.sesion()?.user?.email; as correo) {

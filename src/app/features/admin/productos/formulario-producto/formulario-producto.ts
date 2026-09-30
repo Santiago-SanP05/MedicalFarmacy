@@ -1,5 +1,7 @@
+import { CurrencyPipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 import {
   IMAGEN_TAMANO_MAXIMO,
   IMAGEN_TIPOS_PERMITIDOS,
@@ -9,7 +11,7 @@ import { ProductoImagen } from '../../../../shared/components/producto-imagen/pr
 
 @Component({
   selector: 'app-formulario-producto',
-  imports: [RouterLink, ProductoImagen],
+  imports: [RouterLink, ProductoImagen, CurrencyPipe],
   templateUrl: './formulario-producto.html',
   styleUrl: './formulario-producto.scss',
 })
@@ -21,6 +23,7 @@ export class FormularioProducto implements OnInit {
   private vistaPreviaObjeto: string | null = null;
 
   protected readonly tiposPermitidos = IMAGEN_TIPOS_PERMITIDOS.join(',');
+  protected readonly moneda = environment.moneda;
 
   protected readonly cargando = signal(false);
   protected readonly guardando = signal(false);
@@ -31,7 +34,14 @@ export class FormularioProducto implements OnInit {
   protected readonly nombre = signal('');
   protected readonly descripcion = signal('');
   protected readonly precio = signal('');
+  protected readonly margenPct = signal('0');
   protected readonly activo = signal(true);
+
+  protected readonly gananciaEstimada = computed(() => {
+    const precio = Number(this.precio());
+    const pct = Number(this.margenPct());
+    return Number.isFinite(precio) && Number.isFinite(pct) ? (precio * pct) / 100 : 0;
+  });
   protected readonly imagenActual = signal<string | null>(null);
   protected readonly archivo = signal<File | null>(null);
   protected readonly vistaPrevia = signal<string | null>(null);
@@ -59,6 +69,7 @@ export class FormularioProducto implements OnInit {
       this.nombre.set(producto.nombre);
       this.descripcion.set(producto.descripcion ?? '');
       this.precio.set(String(producto.precio));
+      this.margenPct.set(String(producto.margen_pct));
       this.activo.set(producto.activo);
       this.imagenActual.set(producto.imagen_url);
     } catch {
@@ -115,6 +126,12 @@ export class FormularioProducto implements OnInit {
       return;
     }
 
+    const margenPct = Number(this.margenPct());
+    if (this.margenPct().trim() === '' || !Number.isFinite(margenPct) || margenPct < 0 || margenPct > 100) {
+      this.error.set('El porcentaje de ganancia debe estar entre 0 y 100.');
+      return;
+    }
+
     this.guardando.set(true);
     this.error.set(null);
     try {
@@ -129,6 +146,7 @@ export class FormularioProducto implements OnInit {
         nombre,
         descripcion: this.descripcion().trim() || null,
         precio,
+        margen_pct: margenPct,
         imagen_url,
         activo: this.activo(),
       };

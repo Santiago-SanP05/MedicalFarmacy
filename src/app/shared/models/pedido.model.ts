@@ -16,6 +16,10 @@ export interface ItemPedido {
   precio_unitario: number;
   cantidad: number;
   subtotal: number;
+  /** Snapshot del % de ganancia del producto al momento del pedido. */
+  margen_pct: number;
+  /** Ganancia en dinero de este ítem (subtotal * margen_pct / 100), calculada en la base de datos. */
+  ganancia: number;
 }
 
 export interface Pedido {

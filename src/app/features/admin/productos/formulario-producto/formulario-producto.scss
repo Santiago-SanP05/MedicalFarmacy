@@ -17,6 +17,15 @@
   font-size: 0.9rem;
 }
 
+.ganancia-preview {
+  margin: 0;
+  font-size: 0.85rem;
+
+  strong {
+    color: var(--primary-dark);
+  }
+}
+
 .imagen {
   display: flex;
   flex-wrap: wrap;
