@@ -24,7 +24,7 @@ export class PdfService {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor('#115e59');
-    doc.text('MedicalShop', margen, 20);
+    doc.text('GERDMART', margen, 20);
 
     doc.setFontSize(11);
     doc.setTextColor('#5b6b7c');

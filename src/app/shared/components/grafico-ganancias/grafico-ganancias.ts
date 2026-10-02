@@ -94,7 +94,6 @@ import { PuntoGrafico } from '../../models/ganancia.model';
       display: flex;
       flex: 1 0 44px;
       min-width: 44px;
-      max-width: 64px;
       height: 100%;
       flex-direction: column;
       align-items: center;
