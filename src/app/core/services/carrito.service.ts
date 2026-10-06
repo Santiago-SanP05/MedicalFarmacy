@@ -8,7 +8,7 @@ const CLAVE = 'medicalshop.carrito';
 export class CarritoService {
   readonly items = signal<ItemCarrito[]>(this.cargar());
   readonly total = computed(() =>
-    this.items().reduce((suma, i) => suma + i.producto.precio * i.cantidad, 0),
+    this.items().reduce((suma, i) => suma + i.producto.precio_final * i.cantidad, 0),
   );
   readonly cantidadTotal = computed(() => this.items().reduce((s, i) => s + i.cantidad, 0));
 

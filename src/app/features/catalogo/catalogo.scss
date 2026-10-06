@@ -26,6 +26,65 @@
   }
 }
 
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.filtro {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+
+  &.activo {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--on-color);
+  }
+}
+
+.filtros-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  .select-filtro {
+    flex: 1 0 160px;
+    max-width: 240px;
+  }
+}
+
+.rango-precio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 0 160px;
+  max-width: 260px;
+
+  input {
+    min-width: 0;
+  }
+}
+
+.rango-precio__guion {
+  flex: none;
+  color: var(--muted);
+}
+
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

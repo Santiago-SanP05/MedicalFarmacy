@@ -4,11 +4,74 @@
 <div class="buscador">
   <input
     type="search"
-    placeholder="Buscar producto…"
+    placeholder="Buscar producto, marca o principio activo…"
     aria-label="Buscar producto"
     [value]="busqueda()"
     (input)="busqueda.set($any($event.target).value)"
   />
+</div>
+
+<div class="filtros" role="group" aria-label="Filtrar por etiquetas">
+  <button
+    type="button"
+    class="filtro"
+    [class.activo]="filtroEtiquetas().length === 0"
+    [attr.aria-pressed]="filtroEtiquetas().length === 0"
+    (click)="filtroEtiquetas.set([])"
+  >
+    Todas las etiquetas
+  </button>
+  @for (e of etiquetasDisponibles; track e.valor) {
+    <button
+      type="button"
+      class="filtro"
+      [class.activo]="filtroEtiquetas().includes(e.valor)"
+      [attr.aria-pressed]="filtroEtiquetas().includes(e.valor)"
+      (click)="alternarFiltroEtiqueta(e.valor)"
+    >
+      {{ e.etiqueta }}
+    </button>
+  }
+</div>
+
+<div class="filtros-select">
+  <select
+    class="select-filtro"
+    aria-label="Filtrar por marca"
+    [value]="filtroMarca()"
+    (change)="filtroMarca.set($any($event.target).value)"
+  >
+    <option value="todas">Todas las marcas</option>
+    @for (m of marcasDisponibles(); track m) {
+      <option [value]="m">{{ m }}</option>
+    }
+  </select>
+
+  <div class="rango-precio">
+    <input
+      type="number"
+      class="select-filtro"
+      inputmode="decimal"
+      min="0"
+      step="any"
+      placeholder="Precio mín."
+      aria-label="Precio mínimo"
+      [value]="precioMin()"
+      (input)="precioMin.set($any($event.target).value)"
+    />
+    <span class="rango-precio__guion">–</span>
+    <input
+      type="number"
+      class="select-filtro"
+      inputmode="decimal"
+      min="0"
+      step="any"
+      placeholder="Precio máx."
+      aria-label="Precio máximo"
+      [value]="precioMax()"
+      (input)="precioMax.set($any($event.target).value)"
+    />
+  </div>
 </div>
 
 @if (cargando()) {
@@ -21,7 +84,9 @@
 } @else if (filtrados().length === 0) {
   <p class="estado">
     {{
-      busqueda() ? 'Ningún producto coincide con tu búsqueda.' : 'Aún no hay productos disponibles.'
+      productos().length === 0
+        ? 'Aún no hay productos disponibles.'
+        : 'Ningún producto coincide con tu búsqueda o filtros.'
     }}
   </p>
 } @else {
@@ -38,7 +103,7 @@
           }
         </div>
         <div class="producto__pie">
-          <span class="precio">{{ p.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span>
+          <span class="precio">{{ p.precio_final | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span>
           @if (cantidadEn(p.id); as cantidad) {
             <app-cantidad-stepper
               [cantidad]="cantidad"

@@ -8,6 +8,7 @@ import {
   ProductoService,
 } from '../../../../core/services/producto.service';
 import { ProductoImagen } from '../../../../shared/components/producto-imagen/producto-imagen';
+import { Etiqueta, ETIQUETAS } from '../../../../shared/models/producto.model';
 
 @Component({
   selector: 'app-formulario-producto',
@@ -35,12 +36,24 @@ export class FormularioProducto implements OnInit {
   protected readonly descripcion = signal('');
   protected readonly precio = signal('');
   protected readonly margenPct = signal('0');
+  protected readonly cantidad = signal('0');
+  protected readonly etiquetas = signal<Etiqueta[]>([]);
+  protected readonly marca = signal('');
+  protected readonly principioActivo = signal('');
   protected readonly activo = signal(true);
+  protected readonly etiquetasDisponibles = ETIQUETAS;
 
-  protected readonly gananciaEstimada = computed(() => {
+  protected readonly precioFinalEstimado = computed<number | null>(() => {
     const precio = Number(this.precio());
     const pct = Number(this.margenPct());
-    return Number.isFinite(precio) && Number.isFinite(pct) ? (precio * pct) / 100 : 0;
+    if (!Number.isFinite(precio) || !Number.isFinite(pct) || pct < 0 || pct >= 100) return null;
+    return Math.round((precio / (1 - pct / 100)) * 100) / 100;
+  });
+
+  protected readonly gananciaEstimada = computed<number | null>(() => {
+    const precioFinal = this.precioFinalEstimado();
+    const precio = Number(this.precio());
+    return precioFinal === null || !Number.isFinite(precio) ? null : precioFinal - precio;
   });
   protected readonly imagenActual = signal<string | null>(null);
   protected readonly archivo = signal<File | null>(null);
@@ -70,6 +83,10 @@ export class FormularioProducto implements OnInit {
       this.descripcion.set(producto.descripcion ?? '');
       this.precio.set(String(producto.precio));
       this.margenPct.set(String(producto.margen_pct));
+      this.cantidad.set(String(producto.cantidad));
+      this.etiquetas.set(producto.etiquetas ?? []);
+      this.marca.set(producto.marca ?? '');
+      this.principioActivo.set(producto.principio_activo ?? '');
       this.activo.set(producto.activo);
       this.imagenActual.set(producto.imagen_url);
     } catch {
@@ -77,6 +94,16 @@ export class FormularioProducto implements OnInit {
     } finally {
       this.cargando.set(false);
     }
+  }
+
+  protected tieneEtiqueta(valor: Etiqueta): boolean {
+    return this.etiquetas().includes(valor);
+  }
+
+  protected alternarEtiqueta(valor: Etiqueta): void {
+    this.etiquetas.update((actuales) =>
+      actuales.includes(valor) ? actuales.filter((e) => e !== valor) : [...actuales, valor],
+    );
   }
 
   protected seleccionarArchivo(evento: Event): void {
@@ -127,8 +154,21 @@ export class FormularioProducto implements OnInit {
     }
 
     const margenPct = Number(this.margenPct());
-    if (this.margenPct().trim() === '' || !Number.isFinite(margenPct) || margenPct < 0 || margenPct > 100) {
-      this.error.set('El porcentaje de ganancia debe estar entre 0 y 100.');
+    if (
+      this.margenPct().trim() === '' ||
+      !Number.isFinite(margenPct) ||
+      margenPct < 0 ||
+      margenPct >= 100
+    ) {
+      this.error.set(
+        'El porcentaje de ganancia debe ser mayor o igual a 0 y menor a 100 (100% no permite calcular un precio).',
+      );
+      return;
+    }
+
+    const cantidad = Number(this.cantidad());
+    if (this.cantidad().trim() === '' || !Number.isInteger(cantidad)) {
+      this.error.set('La cantidad en inventario debe ser un número entero (puede ser negativo).');
       return;
     }
 
@@ -147,6 +187,10 @@ export class FormularioProducto implements OnInit {
         descripcion: this.descripcion().trim() || null,
         precio,
         margen_pct: margenPct,
+        cantidad,
+        etiquetas: this.etiquetas(),
+        marca: this.marca().trim() || null,
+        principio_activo: this.principioActivo().trim() || null,
         imagen_url,
         activo: this.activo(),
       };

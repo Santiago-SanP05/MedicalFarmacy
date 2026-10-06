@@ -84,6 +84,12 @@ label.btn:focus-within {
   }
 }
 
+.etiquetas-check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 .acciones {
   display: flex;
   flex-wrap: wrap;

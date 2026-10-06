@@ -1,4 +1,4 @@
-<a routerLink="/admin/productos" class="volver">← Volver a productos</a>
+<a routerLink="/admin/productos" class="volver">← Volver al inventario</a>
 
 <h1 class="page-title">{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h1>
 
@@ -31,7 +31,7 @@
     </div>
 
     <div class="field">
-      <label for="precio">Precio</label>
+      <label for="precio">Precio original (costo)</label>
       <input
         id="precio"
         type="number"
@@ -51,16 +51,81 @@
         type="number"
         inputmode="decimal"
         min="0"
-        max="100"
+        max="99.99"
         step="any"
         required
         [value]="margenPct()"
         (input)="margenPct.set($any($event.target).value)"
       />
+      @if (precioFinalEstimado() !== null) {
+        <p class="ganancia-preview muted">
+          Precio final al público:
+          <strong>{{ precioFinalEstimado()! | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+          · Ganancia por unidad:
+          <strong>{{ gananciaEstimada()! | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+          (precio final − precio original).
+        </p>
+      } @else {
+        <p class="ganancia-preview muted">
+          Ingresa un precio y un porcentaje entre 0 y 99.99 para calcular el precio al público.
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <span class="etiqueta">Etiquetas (puedes marcar varias, opcional)</span>
+      <div class="etiquetas-check">
+        @for (e of etiquetasDisponibles; track e.valor) {
+          <label class="check">
+            <input
+              type="checkbox"
+              [checked]="tieneEtiqueta(e.valor)"
+              (change)="alternarEtiqueta(e.valor)"
+            />
+            <span>{{ e.etiqueta }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="marca">Laboratorio</label>
+      <input
+        id="marca"
+        type="text"
+        autocomplete="off"
+        placeholder="Ej. Genfar"
+        [value]="marca()"
+        (input)="marca.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field">
+      <label for="principioActivo">Principio activo (opcional)</label>
+      <input
+        id="principioActivo"
+        type="text"
+        autocomplete="off"
+        placeholder="Ej. Ibuprofeno"
+        [value]="principioActivo()"
+        (input)="principioActivo.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field">
+      <label for="cantidad">Cantidad en inventario</label>
+      <input
+        id="cantidad"
+        type="number"
+        inputmode="numeric"
+        step="1"
+        required
+        [value]="cantidad()"
+        (input)="cantidad.set($any($event.target).value)"
+      />
       <p class="ganancia-preview muted">
-        Ganancia estimada por unidad:
-        <strong>{{ gananciaEstimada() | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
-        · el precio de venta no cambia, es solo informativo.
+        Al finalizar un pedido con este producto, se descuenta automáticamente. Puede quedar en
+        negativo si vendes más de lo que tienes: eso indica cuánto falta por reponer.
       </p>
     </div>
 

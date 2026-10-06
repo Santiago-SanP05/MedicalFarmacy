@@ -1,7 +1,15 @@
 <div class="encabezado">
   <div>
-    <h1 class="page-title">Productos</h1>
-    <p class="muted">Los productos desactivados no aparecen en el catálogo.</p>
+    <h1 class="page-title">
+      Inventario
+      <button
+        type="button"
+        class="boton-oculto"
+        aria-label="Ver datos ocultos del inventario"
+        (click)="modalDatosAbierto.set(true)"
+      ></button>
+    </h1>
+    <p class="muted">Controla cuánta cantidad tienes de cada producto. Lo desactivado no se ve en el catálogo.</p>
   </div>
   <a routerLink="/admin/productos/nuevo" class="btn btn-primary btn-sm">Nuevo producto</a>
 </div>
@@ -15,12 +23,112 @@
   (input)="busqueda.set($any($event.target).value)"
 />
 
+<div class="filtros" role="group" aria-label="Filtrar por stock">
+  <button
+    type="button"
+    class="filtro"
+    [class.activo]="filtroStock() === 'todos'"
+    [attr.aria-pressed]="filtroStock() === 'todos'"
+    (click)="filtroStock.set('todos')"
+  >
+    Todos ({{ productos().length }})
+  </button>
+  <button
+    type="button"
+    class="filtro filtro-danger"
+    [class.activo]="filtroStock() === 'faltantes'"
+    [attr.aria-pressed]="filtroStock() === 'faltantes'"
+    (click)="filtroStock.set('faltantes')"
+  >
+    Con falta de stock ({{ conteoFaltantes() }})
+  </button>
+</div>
+
+<div class="filtros" role="group" aria-label="Filtrar por etiquetas">
+  <button
+    type="button"
+    class="filtro"
+    [class.activo]="filtroEtiquetas().length === 0"
+    [attr.aria-pressed]="filtroEtiquetas().length === 0"
+    (click)="filtroEtiquetas.set([])"
+  >
+    Todas las etiquetas
+  </button>
+  @for (e of etiquetasDisponibles; track e.valor) {
+    <button
+      type="button"
+      class="filtro"
+      [class.activo]="filtroEtiquetas().includes(e.valor)"
+      [attr.aria-pressed]="filtroEtiquetas().includes(e.valor)"
+      (click)="alternarFiltroEtiqueta(e.valor)"
+    >
+      {{ e.etiqueta }}
+    </button>
+  }
+</div>
+
+<div class="filtros-select">
+  <select
+    class="select-filtro"
+    aria-label="Filtrar por marca"
+    [value]="filtroMarca()"
+    (change)="filtroMarca.set($any($event.target).value)"
+  >
+    <option value="todas">Todas las marcas</option>
+    @for (m of marcasDisponibles(); track m) {
+      <option [value]="m">{{ m }}</option>
+    }
+  </select>
+
+  <div class="rango-precio">
+    <input
+      type="number"
+      class="select-filtro"
+      inputmode="decimal"
+      min="0"
+      step="any"
+      placeholder="Precio mín."
+      aria-label="Precio mínimo"
+      [value]="precioMin()"
+      (input)="precioMin.set($any($event.target).value)"
+    />
+    <span class="rango-precio__guion">–</span>
+    <input
+      type="number"
+      class="select-filtro"
+      inputmode="decimal"
+      min="0"
+      step="any"
+      placeholder="Precio máx."
+      aria-label="Precio máximo"
+      [value]="precioMax()"
+      (input)="precioMax.set($any($event.target).value)"
+    />
+  </div>
+</div>
+
+@if (mostrarAvisoFaltantes() && filtroStock() === 'todos') {
+  <div
+    class="alert alert-error aviso-faltantes"
+    [class.aviso-faltantes--saliendo]="cerrandoAviso()"
+    role="status"
+  >
+    <span>
+      Tienes <strong>{{ conteoFaltantes() }}</strong>
+      {{ conteoFaltantes() === 1 ? 'producto' : 'productos' }} con más pedidos que inventario.
+    </span>
+    <button type="button" class="btn btn-outline btn-sm" (click)="filtroStock.set('faltantes')">
+      Ver cuáles
+    </button>
+  </div>
+}
+
 @if (errorAccion()) {
   <div class="alert alert-error" role="alert">{{ errorAccion() }}</div>
 }
 
 @if (cargando()) {
-  <p class="estado" role="status">Cargando productos…</p>
+  <p class="estado" role="status">Cargando inventario…</p>
 } @else if (error()) {
   <div class="alert alert-error" role="alert">
     <span>{{ error() }}</span>
@@ -28,7 +136,13 @@
   </div>
 } @else if (visibles().length === 0) {
   <p class="estado">
-    {{ busqueda() ? 'Ningún producto coincide con tu búsqueda.' : 'Aún no hay productos.' }}
+    {{
+      productos().length === 0
+        ? 'Aún no hay productos.'
+        : filtroStock() === 'faltantes'
+          ? 'Ningún producto tiene falta de stock.'
+          : 'Ningún producto coincide con tu búsqueda o filtros.'
+    }}
   </p>
 } @else {
   <ul class="lista">
@@ -39,10 +153,31 @@
         </div>
         <div class="fila__info">
           <h2>{{ p.nombre }}</h2>
-          <p class="muted">{{ p.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }}</p>
-          <span class="chip" [class.chip-finalizado]="p.activo" [class.chip-inactivo]="!p.activo">
-            {{ p.activo ? 'Activo' : 'Inactivo' }}
-          </span>
+          <p class="muted">
+            Costo: {{ p.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }} · Público:
+            <strong>{{ p.precio_final | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+            @if (p.marca) {
+              · {{ p.marca }}
+            }
+          </p>
+          <div class="fila__chips">
+            <span class="chip" [class.chip-finalizado]="p.activo" [class.chip-inactivo]="!p.activo">
+              {{ p.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+            <span
+              class="chip"
+              [class.chip-finalizado]="p.cantidad > 10"
+              [class.chip-pendiente]="p.cantidad >= 0 && p.cantidad <= 10"
+              [class.chip-danger]="p.cantidad < 0"
+            >
+              {{ p.cantidad < 0 ? 'Faltan ' + -p.cantidad : 'Stock: ' + p.cantidad }}
+            </span>
+            @for (e of etiquetasDisponibles; track e.valor) {
+              @if (p.etiquetas.includes(e.valor)) {
+                <span class="chip chip-inactivo">{{ e.etiqueta }}</span>
+              }
+            }
+          </div>
         </div>
         <div class="fila__acciones">
           <a [routerLink]="['/admin/productos', p.id, 'editar']" class="btn btn-outline btn-sm">
@@ -62,4 +197,36 @@
       </li>
     }
   </ul>
+}
+
+@if (modalDatosAbierto()) {
+  <div class="modal-fondo" (click)="modalDatosAbierto.set(false)" (document:keydown.escape)="modalDatosAbierto.set(false)">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-datos-titulo"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal__cabecera">
+        <h2 id="modal-datos-titulo">Datos del inventario</h2>
+        <button
+          type="button"
+          class="modal__cerrar"
+          aria-label="Cerrar"
+          (click)="modalDatosAbierto.set(false)"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="modal__cuerpo">
+        <p class="muted">
+          Valor total del inventario a precio de costo (solo productos con stock disponible):
+        </p>
+        <strong class="modal__cifra">{{
+          valorInventarioCosto() | currency: moneda : 'symbol-narrow' : '1.0-0'
+        }}</strong>
+      </div>
+    </div>
+  </div>
 }

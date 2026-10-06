@@ -445,3 +445,214 @@ revoke all on function public.ganancias_mensuales(int) from public;
 
 grant execute on function public.ganancias_diarias(int) to authenticated;
 grant execute on function public.ganancias_mensuales(int) to authenticated;
+
+-- ============ INVENTARIO (STOCK) ============
+-- Ejecuta solo este bloque si ya tienes todo lo anterior.
+--
+-- Qué hace:
+-- 1) Agrega "cantidad" a productos: el stock actual. El admin lo ve y lo edita desde el
+--    apartado "Inventario" (es el mismo "Productos" de siempre, solo que ahora muestra el stock).
+-- 2) Al finalizar un pedido, descuenta del inventario la cantidad de cada producto vendido.
+--    El usuario sin login sigue pudiendo pedir cualquier cantidad (no se valida contra el
+--    stock al crear el pedido), así que el inventario puede quedar en negativo: eso significa
+--    que se vendió más de lo que había y hay que reponerlo.
+-- 3) No toca crear_pedido: el carrito del usuario sigue sin límite de cantidad.
+
+alter table public.productos
+  add column if not exists cantidad integer not null default 0;
+
+-- Reemplaza finalizar_pedido para que también descuente el inventario (puede quedar negativo).
+create or replace function public.finalizar_pedido(p_id text, p_nombre text, p_telefono text)
+returns public.pedidos
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_pedido public.pedidos;
+begin
+  if not public.es_admin() then
+    raise exception 'No autorizado';
+  end if;
+
+  if coalesce(trim(p_nombre), '') = '' or coalesce(trim(p_telefono), '') = '' then
+    raise exception 'Nombre y teléfono son obligatorios';
+  end if;
+
+  update public.pedidos
+  set estado = 'finalizado',
+      fecha_finalizacion = now(),
+      comprador = jsonb_build_object('nombre', trim(p_nombre), 'telefono', trim(p_telefono))
+  where id = upper(p_id) and estado = 'pendiente'
+  returning * into v_pedido;
+
+  if not found then
+    raise exception 'Pedido no encontrado o ya finalizado';
+  end if;
+
+  update public.productos p
+  set cantidad = p.cantidad - i.cantidad
+  from public.items_pedido i
+  where i.pedido_id = v_pedido.id and i.producto_id = p.id;
+
+  return v_pedido;
+end;
+$$;
+
+-- ============ PRECIO AL PÚBLICO SOBRE EL PRECIO FINAL ============
+-- Ejecuta solo este bloque si ya tienes todo lo anterior.
+--
+-- Cambia la fórmula del precio que ve el comprador. Antes "precio" era el precio final y
+-- "margen_pct" era solo informativo. Ahora "precio" es el precio ORIGINAL (de costo) y el
+-- precio al público se calcula así: precio / (1 - margen_pct / 100).
+-- Ejemplo: 10.000 / (1 - 20%) = 12.500.
+--
+-- El admin sigue escribiendo "precio" (de costo) y "margen_pct" como siempre; la columna
+-- nueva "precio_final" se calcula sola y es la que se muestra en catálogo, carrito y facturas.
+--
+-- margen_pct ya no puede llegar a 100 (dividir entre 1-100% sería dividir entre cero).
+-- Si este bloque falla al crear la restricción, revisa si algún producto ya tiene
+-- margen_pct = 100 y bájalo manualmente antes de volver a ejecutar.
+--
+-- No hace falta tocar la columna "ganancia" de items_pedido: sigue siendo
+-- subtotal * margen_pct / 100, y con el subtotal basado ahora en precio_final, ya calcula
+-- sola la ganancia nueva (precio_final - precio de costo). Tampoco hay que tocar las
+-- funciones de ganancias: siguen sumando items_pedido.ganancia y ya quedan correctas.
+
+alter table public.productos
+  drop constraint if exists productos_margen_pct_check;
+
+alter table public.productos
+  add constraint productos_margen_pct_check check (margen_pct >= 0 and margen_pct < 100);
+
+alter table public.productos
+  add column if not exists precio_final numeric(12,2)
+  generated always as (
+    case when margen_pct >= 100 then null else round(precio / (1 - margen_pct / 100.0), 2) end
+  ) stored;
+
+-- Reemplaza crear_pedido para que el pedido se cree con el precio final (al público),
+-- no con el precio de costo.
+create or replace function public.crear_pedido(p_items jsonb)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_alfabeto constant text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  v_id text;
+  v_esperados int;
+  v_insertados int;
+begin
+  if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'El carrito está vacío';
+  end if;
+
+  if exists (
+    select 1 from jsonb_array_elements(p_items) x
+    where (x->>'cantidad')::int is null or (x->>'cantidad')::int < 1
+  ) then
+    raise exception 'Cantidad inválida';
+  end if;
+
+  loop
+    v_id := '';
+    for n in 1..4 loop
+      v_id := v_id || substr(v_alfabeto, 1 + floor(random() * length(v_alfabeto))::int, 1);
+    end loop;
+    begin
+      insert into pedidos (id) values (v_id);
+      exit;
+    exception when unique_violation then
+      null;
+    end;
+  end loop;
+
+  select count(distinct x->>'producto_id') into v_esperados
+  from jsonb_array_elements(p_items) x;
+
+  insert into items_pedido (pedido_id, producto_id, nombre_producto, precio_unitario, cantidad, subtotal, margen_pct)
+  select v_id, p.id, p.nombre, p.precio_final, g.cantidad, p.precio_final * g.cantidad, p.margen_pct
+  from (
+    select (x->>'producto_id')::uuid as producto_id, sum((x->>'cantidad')::int)::int as cantidad
+    from jsonb_array_elements(p_items) x
+    group by 1
+  ) g
+  join productos p on p.id = g.producto_id and p.activo;
+
+  get diagnostics v_insertados = row_count;
+  if v_insertados <> v_esperados then
+    raise exception 'Hay productos no disponibles';
+  end if;
+
+  update pedidos
+  set total = (select coalesce(sum(subtotal), 0) from items_pedido where pedido_id = v_id)
+  where id = v_id;
+
+  return v_id;
+end;
+$$;
+
+-- ============ CATEGORÍA, MARCA Y PRINCIPIO ACTIVO (FILTROS) ============
+-- Ejecuta solo este bloque si ya tienes todo lo anterior.
+--
+-- Qué hace: agrega 3 columnas a "productos" para poder filtrar el catálogo y el inventario:
+-- 1) "categoria": 'drogueria' o 'tienda'. Obligatoria. Los productos existentes quedan en
+--    'tienda' por defecto — entra a cada uno y ponle la categoría real.
+-- 2) "marca": laboratorio o marca (ej. "Genfar"). Opcional, texto libre.
+-- 3) "principio_activo": (ej. "Ibuprofeno"). Opcional, texto libre.
+--
+-- No hace falta tocar RLS: las políticas de "productos" ya cubren toda la tabla.
+-- No hace falta tocar crear_pedido ni items_pedido: estos campos son solo informativos
+-- del catálogo, no afectan precios ni facturas, así que no se "congelan" en el pedido.
+
+alter table public.productos
+  add column if not exists categoria text not null default 'tienda'
+  check (categoria in ('drogueria', 'tienda'));
+
+alter table public.productos
+  add column if not exists marca text;
+
+alter table public.productos
+  add column if not exists principio_activo text;
+
+-- ============ ETIQUETAS (UN PRODUCTO PUEDE TENER VARIAS) ============
+-- Ejecuta solo este bloque si ya tienes el bloque anterior (categoría/marca/principio activo).
+--
+-- Reemplaza "categoria" (una sola, obligatoria) por "etiquetas" (un arreglo: ninguna, una o
+-- varias por producto, opcional). Si ya tenías productos con "categoria" asignada, se migra
+-- sola a la nueva columna antes de borrar la vieja, para no perder ese trabajo.
+--
+-- El filtro en Angular ahora es de selección múltiple: se usa un producto si tiene AL MENOS
+-- una de las etiquetas que el usuario/admin seleccionó.
+
+alter table public.productos
+  add column if not exists etiquetas text[] not null default '{}'::text[]
+  check (etiquetas <@ array['drogueria', 'tienda']::text[]);
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'productos' and column_name = 'categoria'
+  ) then
+    update public.productos
+    set etiquetas = array[categoria]
+    where categoria is not null and etiquetas = '{}'::text[];
+
+    alter table public.productos drop column categoria;
+  end if;
+end $$;
+
+-- ============ ETIQUETA "ALTOS COSTOS" ============
+-- Ejecuta solo este bloque si ya tienes el bloque anterior de "etiquetas".
+-- Amplía la lista de etiquetas permitidas para incluir "alto_costo" (manual, el admin la
+-- marca a mano en el producto; no se calcula sola a partir del precio).
+
+alter table public.productos
+  drop constraint if exists productos_etiquetas_check;
+
+alter table public.productos
+  add constraint productos_etiquetas_check
+  check (etiquetas <@ array['drogueria', 'tienda', 'alto_costo']::text[]);

@@ -17,7 +17,7 @@
             <div>
               <h2>{{ item.producto.nombre }}</h2>
               <p class="muted">
-                {{ item.producto.precio | currency: moneda : 'symbol-narrow' : '1.0-0' }} c/u
+                {{ item.producto.precio_final | currency: moneda : 'symbol-narrow' : '1.0-0' }} c/u
               </p>
             </div>
           </div>
@@ -27,7 +27,8 @@
           />
           <strong class="linea__subtotal">
             {{
-              item.producto.precio * item.cantidad | currency: moneda : 'symbol-narrow' : '1.0-0'
+              item.producto.precio_final * item.cantidad
+                | currency: moneda : 'symbol-narrow' : '1.0-0'
             }}
           </strong>
           <button

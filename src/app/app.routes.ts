@@ -52,7 +52,7 @@ export const routes: Routes = [
       },
       {
         path: 'productos',
-        title: 'Productos · GERDMART',
+        title: 'Inventario · GERDMART',
         loadComponent: () =>
           import('./features/admin/productos/listado-productos/listado-productos').then(
             (m) => m.ListadoProductos,
