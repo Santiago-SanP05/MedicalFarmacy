@@ -656,3 +656,219 @@ alter table public.productos
 alter table public.productos
   add constraint productos_etiquetas_check
   check (etiquetas <@ array['drogueria', 'tienda', 'alto_costo']::text[]);
+
+-- ============ SOLO SE PUEDEN BORRAR PEDIDOS PENDIENTES ============
+-- Ejecuta solo este bloque si ya tienes todo lo anterior.
+-- Una vez un pedido queda "finalizado" (factura generada), ya no se puede borrar ni desde
+-- la app ni por fuera de ella: la regla queda en la base de datos, no solo en la interfaz.
+
+drop policy if exists "admin borra pedidos" on public.pedidos;
+
+create policy "admin borra pedidos" on public.pedidos
+  for delete to authenticated
+  using (public.es_admin() and estado = 'pendiente');
+
+-- ============ GANANCIA POR PEDIDO (PENDIENTES Y FINALIZADOS) ============
+-- Ejecuta solo este bloque si ya tienes todo lo anterior.
+--
+-- Agrega "ganancia_total" a pedidos: la suma de la ganancia de todos sus ítems, calculada
+-- al crear el pedido (igual que "total"). Se guarda desde el principio, sin importar el
+-- estado, para que el admin pueda ver la ganancia de un pedido tanto si está pendiente
+-- como si ya está finalizado. No afecta el panel de "Ganancias" (que solo suma pedidos
+-- finalizados): esto es solo para ver el dato en un pedido puntual.
+
+alter table public.pedidos
+  add column if not exists ganancia_total numeric(12,2) not null default 0;
+
+-- Calcula ganancia_total para los pedidos que ya existían antes de este bloque.
+update public.pedidos p
+set ganancia_total = (
+  select coalesce(sum(i.ganancia), 0) from public.items_pedido i where i.pedido_id = p.id
+);
+
+-- Reemplaza crear_pedido para que también calcule ganancia_total.
+create or replace function public.crear_pedido(p_items jsonb)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_alfabeto constant text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  v_id text;
+  v_esperados int;
+  v_insertados int;
+begin
+  if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'El carrito está vacío';
+  end if;
+
+  if exists (
+    select 1 from jsonb_array_elements(p_items) x
+    where (x->>'cantidad')::int is null or (x->>'cantidad')::int < 1
+  ) then
+    raise exception 'Cantidad inválida';
+  end if;
+
+  loop
+    v_id := '';
+    for n in 1..4 loop
+      v_id := v_id || substr(v_alfabeto, 1 + floor(random() * length(v_alfabeto))::int, 1);
+    end loop;
+    begin
+      insert into pedidos (id) values (v_id);
+      exit;
+    exception when unique_violation then
+      null;
+    end;
+  end loop;
+
+  select count(distinct x->>'producto_id') into v_esperados
+  from jsonb_array_elements(p_items) x;
+
+  insert into items_pedido (pedido_id, producto_id, nombre_producto, precio_unitario, cantidad, subtotal, margen_pct)
+  select v_id, p.id, p.nombre, p.precio_final, g.cantidad, p.precio_final * g.cantidad, p.margen_pct
+  from (
+    select (x->>'producto_id')::uuid as producto_id, sum((x->>'cantidad')::int)::int as cantidad
+    from jsonb_array_elements(p_items) x
+    group by 1
+  ) g
+  join productos p on p.id = g.producto_id and p.activo;
+
+  get diagnostics v_insertados = row_count;
+  if v_insertados <> v_esperados then
+    raise exception 'Hay productos no disponibles';
+  end if;
+
+  update pedidos
+  set total = (select coalesce(sum(subtotal), 0) from items_pedido where pedido_id = v_id),
+      ganancia_total = (select coalesce(sum(ganancia), 0) from items_pedido where pedido_id = v_id)
+  where id = v_id;
+
+  return v_id;
+end;
+$$;
+
+-- ============ GANANCIAS EN HORA DE COLOMBIA (NO UTC) ============
+-- Ejecuta solo este bloque si ya tienes todo lo anterior.
+--
+-- Bug encontrado en el chequeo general: "Ganancias de hoy/este mes" usaba current_date,
+-- que en Supabase corre en UTC. Colombia es UTC-5, así que entre la medianoche y las 5 a.m.
+-- hora Colombia, un pedido finalizado podía contarse en el día o mes equivocado.
+-- Estas 3 funciones quedan iguales, solo que ahora convierten las fechas a 'America/Bogota'
+-- antes de compararlas.
+
+create or replace function public.resumen_ganancias()
+returns table (
+  ventas_hoy numeric,
+  ganancia_hoy numeric,
+  ventas_mes numeric,
+  ganancia_mes numeric
+)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+begin
+  if not public.es_admin() then
+    raise exception 'No autorizado';
+  end if;
+
+  return query
+  select
+    coalesce(sum(i.subtotal) filter (
+      where (p.fecha_finalizacion at time zone 'America/Bogota')::date
+          = (now() at time zone 'America/Bogota')::date
+    ), 0) as ventas_hoy,
+    coalesce(sum(i.ganancia) filter (
+      where (p.fecha_finalizacion at time zone 'America/Bogota')::date
+          = (now() at time zone 'America/Bogota')::date
+    ), 0) as ganancia_hoy,
+    coalesce(sum(i.subtotal) filter (
+      where date_trunc('month', p.fecha_finalizacion at time zone 'America/Bogota')
+          = date_trunc('month', now() at time zone 'America/Bogota')
+    ), 0) as ventas_mes,
+    coalesce(sum(i.ganancia) filter (
+      where date_trunc('month', p.fecha_finalizacion at time zone 'America/Bogota')
+          = date_trunc('month', now() at time zone 'America/Bogota')
+    ), 0) as ganancia_mes
+  from public.items_pedido i
+  join public.pedidos p on p.id = i.pedido_id
+  where p.estado = 'finalizado';
+end;
+$$;
+
+create or replace function public.ganancias_diarias(p_dias int default 14)
+returns table (dia date, ventas numeric, ganancia numeric)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+begin
+  if not public.es_admin() then
+    raise exception 'No autorizado';
+  end if;
+
+  if p_dias is null or p_dias < 1 or p_dias > 365 then
+    raise exception 'Rango de días inválido';
+  end if;
+
+  return query
+  select
+    d.dia,
+    coalesce(sum(i.subtotal), 0) as ventas,
+    coalesce(sum(i.ganancia), 0) as ganancia
+  from (
+    select generate_series(
+      (now() at time zone 'America/Bogota')::date - (p_dias - 1),
+      (now() at time zone 'America/Bogota')::date,
+      interval '1 day'
+    )::date as dia
+  ) d
+  left join public.pedidos p
+    on p.estado = 'finalizado'
+    and (p.fecha_finalizacion at time zone 'America/Bogota')::date = d.dia
+  left join public.items_pedido i on i.pedido_id = p.id
+  group by d.dia
+  order by d.dia;
+end;
+$$;
+
+create or replace function public.ganancias_mensuales(p_meses int default 6)
+returns table (mes date, ventas numeric, ganancia numeric)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+begin
+  if not public.es_admin() then
+    raise exception 'No autorizado';
+  end if;
+
+  if p_meses is null or p_meses < 1 or p_meses > 60 then
+    raise exception 'Rango de meses inválido';
+  end if;
+
+  return query
+  select
+    m.mes,
+    coalesce(sum(i.subtotal), 0) as ventas,
+    coalesce(sum(i.ganancia), 0) as ganancia
+  from (
+    select generate_series(
+      date_trunc('month', now() at time zone 'America/Bogota') - ((p_meses - 1) || ' months')::interval,
+      date_trunc('month', now() at time zone 'America/Bogota'),
+      interval '1 month'
+    )::date as mes
+  ) m
+  left join public.pedidos p
+    on p.estado = 'finalizado'
+    and date_trunc('month', p.fecha_finalizacion at time zone 'America/Bogota')::date = m.mes
+  left join public.items_pedido i on i.pedido_id = p.id
+  group by m.mes
+  order by m.mes;
+end;
+$$;

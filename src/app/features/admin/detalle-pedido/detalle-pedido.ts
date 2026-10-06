@@ -62,13 +62,8 @@ export class DetallePedido implements OnInit {
 
   protected async eliminarPedido(): Promise<void> {
     const pedido = this.pedido();
-    if (!pedido || this.eliminando()) return;
-    if (
-      !confirm(
-        `¿Eliminar el pedido ${pedido.id}? Esta acción no se puede deshacer` +
-          (pedido.estado === 'finalizado' ? ' y borrará también su factura.' : '.'),
-      )
-    ) {
+    if (!pedido || pedido.estado !== 'pendiente' || this.eliminando()) return;
+    if (!confirm(`¿Eliminar el pedido ${pedido.id}? Esta acción no se puede deshacer.`)) {
       return;
     }
 
@@ -112,7 +107,8 @@ export class DetallePedido implements OnInit {
     if (
       finalizando &&
       !confirm(
-        `¿Finalizar el pedido ${pedido.id}? Después solo podrás editar los datos del comprador.`,
+        `¿Finalizar el pedido ${pedido.id}? Después solo podrás editar los datos del comprador ` +
+          'y ya NO se podrá eliminar este pedido. Esta acción no se puede deshacer.',
       )
     ) {
       return;

@@ -29,6 +29,8 @@ export interface Pedido {
   fecha_finalizacion: string | null;
   comprador: Comprador | null;
   total: number;
+  /** Suma de la ganancia de todos los ítems del pedido, sin importar el estado. */
+  ganancia_total: number;
   items_pedido?: ItemPedido[];
 }
 

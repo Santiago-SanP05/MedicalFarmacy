@@ -16,10 +16,15 @@ export const IMAGEN_TAMANO_MAXIMO = 2 * 1024 * 1024;
 export class ProductoService {
   private readonly client = inject(SupabaseService).client;
 
+  /**
+   * Para el catálogo público. Solo pide las columnas que el comprador debe ver: nunca el
+   * precio de costo ("precio"), el margen ("margen_pct") ni el stock ("cantidad"), aunque
+   * la RLS permita leer la fila — así esos datos de negocio no viajan al navegador del cliente.
+   */
   async listarActivos(): Promise<Producto[]> {
     const { data, error } = await this.client
       .from('productos')
-      .select('*')
+      .select('id, nombre, descripcion, precio_final, etiquetas, marca, principio_activo, imagen_url, activo')
       .eq('activo', true)
       .order('nombre');
     lanzarSiError(error);
