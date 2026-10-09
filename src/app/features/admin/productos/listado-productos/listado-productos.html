@@ -35,6 +35,24 @@
   </button>
   <button
     type="button"
+    class="filtro"
+    [class.activo]="filtroStock() === 'drogueria'"
+    [attr.aria-pressed]="filtroStock() === 'drogueria'"
+    (click)="filtroStock.set('drogueria')"
+  >
+    Droguería · sin stock ({{ conteoDrogueria() }})
+  </button>
+  <button
+    type="button"
+    class="filtro"
+    [class.activo]="filtroStock() === 'distribuidora'"
+    [attr.aria-pressed]="filtroStock() === 'distribuidora'"
+    (click)="filtroStock.set('distribuidora')"
+  >
+    Distribuidora · con stock ({{ conteoDistribuidora() }})
+  </button>
+  <button
+    type="button"
     class="filtro filtro-danger"
     [class.activo]="filtroStock() === 'faltantes'"
     [attr.aria-pressed]="filtroStock() === 'faltantes'"
