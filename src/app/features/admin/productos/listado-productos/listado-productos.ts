@@ -8,7 +8,8 @@ import { Etiqueta, ETIQUETAS, Producto } from '../../../../shared/models/product
 import { dentroDeRangoPrecio, parsePrecio } from '../../../../shared/utils/rango-precio';
 import { normalizar } from '../../../../shared/utils/texto';
 
-type FiltroStock = 'todos' | 'faltantes';
+/** drogueria = stock en 0 · distribuidora = stock mayor que 0 · faltantes = stock negativo */
+type FiltroStock = 'todos' | 'drogueria' | 'distribuidora' | 'faltantes';
 
 @Component({
   selector: 'app-listado-productos',
@@ -35,6 +36,14 @@ export class ListadoProductos implements OnInit {
 
   protected readonly conteoFaltantes = computed(
     () => this.productos().filter((p) => p.cantidad < 0).length,
+  );
+
+  protected readonly conteoDrogueria = computed(
+    () => this.productos().filter((p) => p.cantidad === 0).length,
+  );
+
+  protected readonly conteoDistribuidora = computed(
+    () => this.productos().filter((p) => p.cantidad > 0).length,
   );
 
   /** Marcas presentes entre los productos, para armar el filtro sin mantenerlas a mano. */
@@ -73,14 +82,16 @@ export class ListadoProductos implements OnInit {
 
   protected readonly visibles = computed(() => {
     const consulta = normalizar(this.busqueda().trim());
-    const soloFaltantes = this.filtroStock() === 'faltantes';
+    const stock = this.filtroStock();
     const etiquetas = this.filtroEtiquetas();
     const marca = this.filtroMarca();
     const min = parsePrecio(this.precioMin());
     const max = parsePrecio(this.precioMax());
 
     return this.productos().filter((p) => {
-      if (soloFaltantes && p.cantidad >= 0) return false;
+      if (stock === 'faltantes' && p.cantidad >= 0) return false;
+      if (stock === 'drogueria' && p.cantidad !== 0) return false;
+      if (stock === 'distribuidora' && p.cantidad <= 0) return false;
       if (etiquetas.length > 0 && !etiquetas.every((e) => p.etiquetas.includes(e))) return false;
       if (marca !== 'todas' && p.marca !== marca) return false;
       if (!dentroDeRangoPrecio(p.precio_final, min, max)) return false;
