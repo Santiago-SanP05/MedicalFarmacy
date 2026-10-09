@@ -43,10 +43,34 @@ import { Component, input, signal } from '@angular/core';
       background: var(--primary-soft);
       color: var(--primary-dark);
     }
+
+    :host(.cubrir) img {
+      object-fit: contain;
+      transform: scale(1.34);
+      transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    :host(.cubrir:hover) img {
+      transform: scale(1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host(.cubrir) img {
+        transition: none;
+      }
+    }
+
+    :host(.cubrir) .placeholder {
+      background: var(--pub-mint);
+      color: var(--pub-primary-dark);
+    }
   `,
+  host: { '[class.cubrir]': 'cubrir()' },
 })
 export class ProductoImagen {
   readonly url = input<string | null | undefined>();
   readonly alt = input('');
+  /** true: la imagen llena todo el recuadro recortándose (todas las tarjetas iguales). */
+  readonly cubrir = input(false);
   protected readonly fallo = signal(false);
 }

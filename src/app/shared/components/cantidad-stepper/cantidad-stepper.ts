@@ -17,32 +17,45 @@ import { Component, input, output } from '@angular/core';
     .stepper {
       display: inline-flex;
       align-items: center;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      overflow: hidden;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: var(--pub-bg);
+      box-shadow:
+        inset 3px 3px 7px var(--pub-neu-dark),
+        inset -3px -3px 7px var(--pub-neu-light);
     }
 
     button {
-      width: 40px;
-      height: 40px;
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
       border: 0;
-      background: transparent;
-      color: var(--primary-dark);
-      font-size: 1.25rem;
-      font-weight: 600;
+      border-radius: 50%;
+      background: var(--pub-bg);
+      color: var(--pub-primary-dark);
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1;
       cursor: pointer;
-      transition: background 0.15s;
+      box-shadow:
+        3px 3px 6px var(--pub-neu-dark),
+        -3px -3px 6px var(--pub-neu-light);
+      transition: box-shadow 0.15s;
     }
 
-    button:hover {
-      background: var(--primary-soft);
+    button:active {
+      box-shadow:
+        inset 2px 2px 5px var(--pub-neu-dark),
+        inset -2px -2px 5px var(--pub-neu-light);
     }
 
     span {
-      min-width: 32px;
+      min-width: 28px;
+      color: var(--pub-ink);
+      font-weight: 700;
       text-align: center;
-      font-weight: 600;
     }
   `,
 })

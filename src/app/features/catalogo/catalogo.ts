@@ -2,30 +2,31 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { BusquedaService } from '../../core/services/busqueda.service';
 import { CarritoService } from '../../core/services/carrito.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { CantidadStepper } from '../../shared/components/cantidad-stepper/cantidad-stepper';
 import { ProductoImagen } from '../../shared/components/producto-imagen/producto-imagen';
-import { Etiqueta, ETIQUETAS, Producto } from '../../shared/models/producto.model';
+import { Etiqueta, Producto } from '../../shared/models/producto.model';
 import { dentroDeRangoPrecio, parsePrecio } from '../../shared/utils/rango-precio';
 import { normalizar } from '../../shared/utils/texto';
+import { FiltrosCatalogo } from './filtros-catalogo/filtros-catalogo';
 
 @Component({
   selector: 'app-catalogo',
-  imports: [RouterLink, CurrencyPipe, CantidadStepper, ProductoImagen],
+  imports: [RouterLink, CurrencyPipe, CantidadStepper, ProductoImagen, FiltrosCatalogo],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.scss',
 })
 export class Catalogo implements OnInit {
   private readonly productoService = inject(ProductoService);
   protected readonly carrito = inject(CarritoService);
+  protected readonly busqueda = inject(BusquedaService);
   protected readonly moneda = environment.moneda;
-  protected readonly etiquetasDisponibles = ETIQUETAS;
 
   protected readonly productos = signal<Producto[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly busqueda = signal('');
   protected readonly filtroEtiquetas = signal<Etiqueta[]>([]);
   protected readonly filtroMarca = signal('todas');
   protected readonly precioMin = signal('');
@@ -42,7 +43,7 @@ export class Catalogo implements OnInit {
   });
 
   protected readonly filtrados = computed(() => {
-    const consulta = normalizar(this.busqueda().trim());
+    const consulta = normalizar(this.busqueda.texto().trim());
     const etiquetas = this.filtroEtiquetas();
     const marca = this.filtroMarca();
     const min = parsePrecio(this.precioMin());
@@ -77,11 +78,5 @@ export class Catalogo implements OnInit {
 
   protected cantidadEn(productoId: string): number {
     return this.carrito.items().find((i) => i.producto.id === productoId)?.cantidad ?? 0;
-  }
-
-  protected alternarFiltroEtiqueta(valor: Etiqueta): void {
-    this.filtroEtiquetas.update((actuales) =>
-      actuales.includes(valor) ? actuales.filter((e) => e !== valor) : [...actuales, valor],
-    );
   }
 }

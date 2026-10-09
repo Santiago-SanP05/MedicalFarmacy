@@ -1,0 +1,168 @@
+<div class="fila" role="group" aria-label="Filtros del catálogo">
+  <div class="desplegable">
+    <button
+      type="button"
+      class="control control--desplegable"
+      [class.control--activo]="marca() !== 'todas'"
+      aria-haspopup="true"
+      [attr.aria-expanded]="abierto() === 'marca'"
+      (click)="alternarPanel('marca')"
+    >
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path
+          d="M3 10V4a1 1 0 0 1 1-1h6l10 10-7 7L3 10Z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linejoin="round"
+        />
+        <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" />
+      </svg>
+      <span class="control__texto">{{ textoMarca() }}</span>
+      <svg
+        class="control__flecha"
+        [class.control__flecha--girada]="abierto() === 'marca'"
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        aria-hidden="true"
+      >
+        <path
+          d="m6 9 6 6 6-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    @if (abierto() === 'marca') {
+      <div class="panel panel--izquierda" role="dialog" aria-label="Elegir marca">
+        <p class="panel__titulo">Marca / laboratorio</p>
+        <ul class="opciones">
+          <li>
+            <button
+              type="button"
+              class="opcion"
+              [class.opcion--elegida]="marca() === 'todas'"
+              (click)="elegirMarca('todas')"
+            >
+              <span class="opcion__radio" aria-hidden="true"></span>
+              Todas las marcas
+            </button>
+          </li>
+          @for (m of marcas(); track m) {
+            <li>
+              <button
+                type="button"
+                class="opcion"
+                [class.opcion--elegida]="marca() === m"
+                (click)="elegirMarca(m)"
+              >
+                <span class="opcion__radio" aria-hidden="true"></span>
+                {{ m }}
+              </button>
+            </li>
+          }
+        </ul>
+        @if (marcas().length === 0) {
+          <p class="panel__vacio">Aún no hay marcas cargadas.</p>
+        }
+      </div>
+    }
+  </div>
+
+  @for (e of etiquetasDisponibles; track e.valor) {
+    <button
+      type="button"
+      class="control"
+      [class.control--activo]="etiquetas().includes(e.valor)"
+      [attr.aria-pressed]="etiquetas().includes(e.valor)"
+      (click)="alternarEtiqueta(e.valor)"
+    >
+      {{ e.etiqueta }}
+    </button>
+  }
+
+  <div class="desplegable">
+    <button
+      type="button"
+      class="control control--desplegable"
+      [class.control--activo]="precioActivo()"
+      aria-haspopup="true"
+      [attr.aria-expanded]="abierto() === 'precio'"
+      (click)="alternarPanel('precio')"
+    >
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path
+          d="M12 3v18M16.5 7.5c0-1.7-2-3-4.5-3s-4.5 1.3-4.5 3S9.5 10.4 12 11s4.5 1.8 4.5 3.5-2 3-4.5 3-4.5-1.3-4.5-3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+      <span class="control__texto">{{ textoPrecio() }}</span>
+      <svg
+        class="control__flecha"
+        [class.control__flecha--girada]="abierto() === 'precio'"
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        aria-hidden="true"
+      >
+        <path
+          d="m6 9 6 6 6-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    @if (abierto() === 'precio') {
+      <div class="panel panel--derecha" role="dialog" aria-label="Rango de precio">
+        <p class="panel__titulo">Rango de precio</p>
+        <div class="precio">
+          <label class="campo">
+            <span>Mínimo</span>
+            <input
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              placeholder="0"
+              [value]="precioMin()"
+              (input)="precioMin.set($any($event.target).value)"
+            />
+          </label>
+          <span class="precio__guion" aria-hidden="true">–</span>
+          <label class="campo">
+            <span>Máximo</span>
+            <input
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="any"
+              placeholder="Sin límite"
+              [value]="precioMax()"
+              (input)="precioMax.set($any($event.target).value)"
+            />
+          </label>
+        </div>
+        <button
+          type="button"
+          class="limpiar"
+          [disabled]="!precioActivo()"
+          (click)="limpiarPrecio()"
+        >
+          Limpiar precio
+        </button>
+      </div>
+    }
+  </div>
+</div>

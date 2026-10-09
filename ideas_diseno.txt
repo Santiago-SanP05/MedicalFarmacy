@@ -1,0 +1,190 @@
+REDISEÑO VISUAL - GERDMART
+==========================
+Solo diseño, sin tocar funcionalidad.
+Este archivo se va actualizando a medida que avanzamos, para que puedas leer
+qué se va a hacer antes de que lo haga.
+
+ALCANCE DE ESTA ETAPA
+----------------------
+Solo el diseño que ven los USUARIOS (público, sin login): catálogo, carrito,
+confirmación de pedido. El panel de admin NO se toca en esta etapa.
+Diseño para celular: se piensa después, por ahora solo pantallas grandes.
+
+ESTILO: NEUMORFISMO
+--------------------
+Formas suaves tipo "relieve" (sombras claras y oscuras simulando que el
+elemento sobresale o se hunde de un fondo del mismo color), esquinas muy
+redondeadas, sin bordes duros ni sombras marcadas tipo "tarjeta flotante".
+
+PALETA DE COLORES (reemplaza la paleta actual de styles.scss)
+---------------------------------------------------------------
+Verde principal   #18A87A   -> color de marca / acciones principales
+Verde oscuro      #087F5B   -> hover, texto destacado sobre mint
+Mint              #DDF7EF   -> fondos suaves, estados activos
+Blanco            #FFFFFF   -> superficies
+Gris suave        #F4F7F6   -> fondo general de la página
+Ink               #18312B   -> texto principal (reemplaza el --text actual)
+Azul salud        #3B82A0   -> acento secundario
+Amarillo          #F4C95D   -> acento de aviso / destacado puntual
+
+PASO 1: NAVBAR FLOTANTE  [HECHO]
+---------------------------------
+- Deja de estar pegado al borde superior de la pantalla.
+- Se convierte en un rectángulo de esquinas muy redondeadas (estilo neumórfico,
+  no un rectángulo recto pegado a los bordes).
+- Queda centrado horizontalmente, con espacio/margen libre arriba, a la
+  izquierda y a la derecha. No toca ningún borde de la ventana.
+- Se queda fijo en esa posición flotante al hacer scroll hacia abajo.
+- La barra de búsqueda de productos se mueve DENTRO del navbar (hoy está
+  debajo, en la página de catálogo).
+- El carrito se queda en el navbar igual que está hoy.
+- El logo se queda igual, con su funcionalidad (lleva al catálogo).
+- Todo con la paleta nueva y sombras tipo relieve (neumórfico).
+- Diseño para celular: pendiente, se resuelve en otra etapa.
+- Ajuste: para que no se camufle con el fondo, el navbar pasó a fondo
+  blanco semitransparente con efecto vidrio esmerilado (difumina lo que pasa
+  por debajo al hacer scroll), un borde verde muy tenue y una sombra algo
+  más marcada debajo.
+
+PASO 2: BODY - ANUNCIO / BANNER PRINCIPAL  [ELIMINADO el 2026-10-09]
+-------------------------------------------------------
+- Debajo del navbar, lo primero del body: un banner tipo anuncio.
+- CAMBIO: ahora la imagen va a la IZQUIERDA y el texto a la DERECHA.
+- Imagen: public/imagenes/anuncio2.png (PNG con transparencia real; ya no se
+  usa Anuncio.jpeg). Se muestra la persona hasta la cadera, "parada" sobre
+  el borde inferior del banner, con sombra suave y el círculo mint detrás.
+  La imagen es pequeña (286x399 px), por eso no se agranda más de ~400 px
+  de alto: más grande se vería borrosa.
+- Implementado como componente aparte: features/catalogo/banner-principal/
+- Texto: etiqueta "Droguería de confianza", título "Tu salud, en buenas
+  manos", descripción corta, botón "Ver productos" (baja hasta la lista de
+  productos) y 3 beneficios: Sin registro / Precios claros / Atención cercana.
+- La imagen se recorta mostrando solo la parte de arriba (cara y torso), así
+  la marca de agua "DreaminaAI" de la esquina inferior queda fuera.
+- Ajuste: se quitó el cuadro donde estaba la imagen. Ahora la persona queda
+  directamente sobre el banner, con un círculo mint en relieve detrás, los
+  bordes de la foto desvanecidos y un sello flotante "Productos verificados".
+- Nota: Anuncio.jpeg NO tiene transparencia real (el formato JPEG no la
+  soporta; el cuadriculado viene pintado en la imagen). Se disimula con
+  mezcla de color y bordes desvanecidos. Ideal a futuro: exportarla como PNG
+  con fondo transparente.
+- Reemplaza el título "Catálogo" que había antes arriba de la página.
+- El botón "Ver productos" baja con desplazamiento suave (no de golpe) y se
+  detiene justo debajo del navbar flotante.
+
+PASO 3: BODY - ACCESOS RÁPIDOS DE MARCAS (4 tarjetas)  [ELIMINADO el 2026-10-09]
+-----------------------------------------------------------------
+- Debajo del banner: 4 tarjetas/cuadros, una por cada una de las primeras 4
+  marcas que existan en los productos (dato real, orden alfabético, tomado
+  de las marcas ya cargadas — no inventado).
+- Por ahora SOLO VISUAL, sin funcionalidad todavía (el clic para filtrar por
+  esa marca se conecta después, en otra etapa).
+- Estilo neumórfico (cuadros con relieve suave).
+- Implementado como componente aparte: features/catalogo/marcas-destacadas/
+- Cada tarjeta: título de sección "Marcas destacadas", círculo hundido con la
+  inicial de la marca (cada tarjeta con un tono distinto de la paleta:
+  verde, azul salud, amarillo oscurecido, verde oscuro), nombre de la marca
+  y una pastilla mint con cuántos productos tiene esa marca.
+- Si hay menos de 4 marcas, muestra las que haya; si no hay ninguna, la
+  sección no aparece.
+- Celular: pasa de 4 columnas a 2.
+
+PASO 4: BODY - FILA DE FILTROS REALES  [HECHO]
+----------------------------------------------------
+Implementado como componente aparte: features/catalogo/filtros-catalogo/
+- Botones en relieve; cuando un filtro está activo el botón se ve "hundido"
+  (presionado) en verde. Las etiquetas activas muestran además un punto verde.
+- Marca: botón con el nombre de la marca elegida y una flecha. Al hacer clic
+  despliega un panel en relieve con la lista de marcas (con círculos tipo
+  radio), y se cierra solo al elegir una.
+- Precio: el botón muestra el rango elegido (ej. "$5.000 – $20.000",
+  "Desde $5.000") o solo "Precio" si no hay filtro. Al hacer clic despliega
+  un panel con Mínimo / Máximo (campos hundidos) y un botón "Limpiar precio".
+- Animación de los paneles: aparecen deslizándose hacia abajo con un leve
+  crecimiento y fundido (0,24 s); la flecha del botón gira al abrir.
+- Los paneles se cierran al hacer clic fuera o con la tecla Esc.
+- Se quitó la pastilla "Todas las etiquetas" para dejar exactamente los
+  elementos pedidos en la fila; las etiquetas se siguen pudiendo desmarcar
+  una por una tocándolas de nuevo.
+- La lógica de filtrado NO cambió (mismos filtros, solo cambió la forma).
+- Celular: la fila puede pasar a dos líneas para no desbordarse.
+
+Detalle original del pedido:
+- Debajo de las 4 tarjetas de marca: los filtros de verdad, en UNA SOLA FILA
+  (nunca uno debajo del otro):
+  1. Selector de marca (rediseñado, ver abajo)
+  2. Etiqueta "Droguería"
+  3. Etiqueta "Tienda"
+  4. Etiqueta "Altos costos"
+  5. Botón "Precio" -> al hacer clic, despliega un panel/popover con los
+     campos de precio mínimo y máximo (los mismos que ya existen hoy, solo
+     que ahora ocultos detrás de este botón en vez de estar siempre visibles).
+     Animación de apertura a elección de Claude (algo suave tipo
+     fade + deslizar hacia abajo, estilo neumórfico).
+- El selector de marca hoy es un <select> nativo muy plano — se rediseña
+  desde cero con estilo neumórfico (no tiene que seguir siendo un <select>
+  de HTML normal, puede ser un botón/panel personalizado, similar en
+  mecánica al botón de precio).
+
+PASO 5: BODY - TARJETAS DE PRODUCTO  [HECHO]
+-----------------------------------------------
+Lo que se hizo:
+- La imagen ahora LLENA todo su recuadro (se recorta si hace falta) en vez
+  de ajustarse dentro con franjas blancas. El recuadro tiene tamaño fijo
+  (cuadrado en celular, 4:3 en pantalla grande), así que todas las tarjetas
+  quedan iguales sin importar el tamaño de la foto original.
+  (Solo en el catálogo; en el admin y el carrito las imágenes siguen igual.)
+- Nombre y descripción limitados a 2 líneas cada uno, para que todas las
+  tarjetas de una misma fila tengan la misma altura.
+- Cambio sutil de estilo: tarjeta en relieve neumórfico (sin borde), imagen
+  con esquinas redondeadas, la marca del producto en una línea pequeña azul
+  arriba del nombre, precio en verde oscuro y botón "Agregar" verde en forma
+  de pastilla.
+- La barra flotante "Ver carrito" de abajo también tomó los colores nuevos.
+- Animación al pasar el mouse por la imagen: en reposo la foto se ve
+  agrandada (~34%) para llenar el recuadro; al pasar el mouse se "aleja"
+  suavemente (0,45 s) y se ve la imagen completa, sin recortes.
+  Nota: fotos muy anchas o muy altas pueden dejar una franja blanca a los
+  lados en reposo (no afecta el tamaño de la tarjeta).
+
+Pedido original:
+- La imagen se ajusta a un tamaño de tarjeta FIJO (recortando si hace falta),
+  en vez de que la tarjeta cambie de tamaño según la imagen. Así todas las
+  tarjetas del catálogo quedan del mismo tamaño sin importar si la imagen
+  original es muy grande, muy chica, cuadrada o rectangular.
+- Cambio sutil al diseño de la tarjeta (no un cambio drástico), solo lo
+  necesario para que combine con la paleta y el estilo neumórfico nuevo.
+
+PASO 6: CARRITO  [HECHO]
+--------------------------
+Mismo estilo neumórfico y paleta; la funcionalidad no cambió.
+- Cabecera: botón "Seguir comprando" (vuelve al catálogo), título "Tu
+  carrito" grande y una pastilla mint con la cantidad de productos.
+- Carrito vacío: tarjeta en relieve con ícono de carrito hundido, mensaje y
+  botón verde "Ver catálogo".
+- Cada producto: fila en relieve con imagen redondeada, marca en azul,
+  nombre, precio por unidad, selector de cantidad neumórfico, subtotal en
+  verde oscuro y botón redondo de basura para quitar (se pone rojo al pasar
+  el mouse).
+- Resumen (a la derecha, queda fijo al hacer scroll debajo del navbar):
+  cantidad de productos, total en un panel hundido, nota informativa en
+  azul sobre el código de 4 caracteres, botón verde "Generar pedido" y
+  "Vaciar carrito" como enlace discreto en rojo.
+- El selector de cantidad (+/-) pasó al estilo nuevo; se usa solo en
+  catálogo y carrito, así que el admin no se afecta.
+- Piezas reutilizables nuevas en styles.scss (para usarlas también en la
+  confirmación): .pub-boton, .pub-volver, .pub-vacio.
+- Celular: cada fila del carrito se reorganiza en dos líneas y el resumen
+  pasa debajo de la lista.
+
+PENDIENTE (resumen)
+---------------------
+- Hechos y vigentes: navbar flotante (1), fila de filtros (4), tarjetas de
+  producto (5) y carrito (6).
+- ELIMINADOS por decisión del usuario (2026-10-09): el banner/anuncio (2) y
+  las marcas destacadas (3). Se borraron sus componentes; el catálogo ahora
+  empieza directo con los filtros y luego los productos. Las imágenes de
+  public/imagenes/ quedaron en la carpeta pero ya no se usan.
+- Diseño completo para celular: se deja para una etapa aparte (por ahora
+  solo se aseguró que no se rompa).
+- La confirmación de pedido todavía tiene el diseño anterior.

@@ -1,78 +1,11 @@
-<h1 class="page-title">Catálogo</h1>
-<p class="muted">Agrega productos a tu carrito y genera tu pedido.</p>
-
-<div class="buscador">
-  <input
-    type="search"
-    placeholder="Buscar producto, marca o principio activo…"
-    aria-label="Buscar producto"
-    [value]="busqueda()"
-    (input)="busqueda.set($any($event.target).value)"
-  />
-</div>
-
-<div class="filtros" role="group" aria-label="Filtrar por etiquetas">
-  <button
-    type="button"
-    class="filtro"
-    [class.activo]="filtroEtiquetas().length === 0"
-    [attr.aria-pressed]="filtroEtiquetas().length === 0"
-    (click)="filtroEtiquetas.set([])"
-  >
-    Todas las etiquetas
-  </button>
-  @for (e of etiquetasDisponibles; track e.valor) {
-    <button
-      type="button"
-      class="filtro"
-      [class.activo]="filtroEtiquetas().includes(e.valor)"
-      [attr.aria-pressed]="filtroEtiquetas().includes(e.valor)"
-      (click)="alternarFiltroEtiqueta(e.valor)"
-    >
-      {{ e.etiqueta }}
-    </button>
-  }
-</div>
-
-<div class="filtros-select">
-  <select
-    class="select-filtro"
-    aria-label="Filtrar por marca"
-    [value]="filtroMarca()"
-    (change)="filtroMarca.set($any($event.target).value)"
-  >
-    <option value="todas">Todas las marcas</option>
-    @for (m of marcasDisponibles(); track m) {
-      <option [value]="m">{{ m }}</option>
-    }
-  </select>
-
-  <div class="rango-precio">
-    <input
-      type="number"
-      class="select-filtro"
-      inputmode="decimal"
-      min="0"
-      step="any"
-      placeholder="Precio mín."
-      aria-label="Precio mínimo"
-      [value]="precioMin()"
-      (input)="precioMin.set($any($event.target).value)"
-    />
-    <span class="rango-precio__guion">–</span>
-    <input
-      type="number"
-      class="select-filtro"
-      inputmode="decimal"
-      min="0"
-      step="any"
-      placeholder="Precio máx."
-      aria-label="Precio máximo"
-      [value]="precioMax()"
-      (input)="precioMax.set($any($event.target).value)"
-    />
-  </div>
-</div>
+<app-filtros-catalogo
+  class="seccion-filtros"
+  [marcas]="marcasDisponibles()"
+  [(marca)]="filtroMarca"
+  [(etiquetas)]="filtroEtiquetas"
+  [(precioMin)]="precioMin"
+  [(precioMax)]="precioMax"
+/>
 
 @if (cargando()) {
   <p class="estado" role="status">Cargando productos…</p>
@@ -92,14 +25,17 @@
 } @else {
   <ul class="grid-productos">
     @for (p of filtrados(); track p.id) {
-      <li class="card producto">
+      <li class="producto">
         <div class="producto__img">
-          <app-producto-imagen [url]="p.imagen_url" [alt]="p.nombre" />
+          <app-producto-imagen [url]="p.imagen_url" [alt]="p.nombre" [cubrir]="true" />
         </div>
         <div class="producto__cuerpo">
+          @if (p.marca) {
+            <span class="producto__marca">{{ p.marca }}</span>
+          }
           <h2>{{ p.nombre }}</h2>
           @if (p.descripcion) {
-            <p class="muted">{{ p.descripcion }}</p>
+            <p>{{ p.descripcion }}</p>
           }
         </div>
         <div class="producto__pie">
@@ -110,7 +46,7 @@
               (cambio)="carrito.cambiarCantidad(p.id, $event)"
             />
           } @else {
-            <button type="button" class="btn btn-primary btn-sm" (click)="carrito.agregar(p)">
+            <button type="button" class="boton-agregar" (click)="carrito.agregar(p)">
               Agregar
             </button>
           }

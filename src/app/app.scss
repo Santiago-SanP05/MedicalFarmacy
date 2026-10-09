@@ -1,3 +1,5 @@
+/* ===== Header del admin (sin cambios de diseño) ===== */
+
 .topbar {
   position: sticky;
   top: 0;
@@ -48,55 +50,184 @@
   box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--primary) 60%, transparent);
 }
 
-.topbar__nav {
+/* ===== Navbar flotante del público (neumorfismo) ===== */
+
+.navbar-flotante {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
   display: flex;
+  justify-content: center;
+  padding: 20px 20px 0;
+  pointer-events: none;
+}
+
+.navbar-pill {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 1080px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--pub-primary) 16%, transparent);
+  border-radius: var(--pub-radius);
+  background: color-mix(in srgb, var(--pub-surface) 86%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow:
+    10px 10px 24px var(--pub-neu-dark),
+    -10px -10px 24px var(--pub-neu-light),
+    0 20px 40px -20px color-mix(in srgb, var(--pub-ink) 40%, transparent);
+  pointer-events: auto;
+}
+
+.page--flotante {
+  padding-top: 108px;
+}
+
+.brand-pub {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  color: var(--pub-primary-dark);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.brand-pub__texto {
+  color: var(--pub-ink);
+
+  strong {
+    color: var(--pub-primary);
+  }
+}
+
+.brand-pub__mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(155deg, var(--pub-primary), var(--pub-primary-dark));
+  box-shadow:
+    4px 4px 10px var(--pub-neu-dark),
+    -3px -3px 8px var(--pub-neu-light);
+}
+
+.navbar-pill__buscador {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-inline: 18px;
+  border-radius: 999px;
+  background: var(--pub-bg);
+  color: color-mix(in srgb, var(--pub-ink) 55%, transparent);
+  box-shadow:
+    inset 4px 4px 8px var(--pub-neu-dark),
+    inset -4px -4px 8px var(--pub-neu-light);
+
+  svg {
+    flex: none;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    border: none;
+    background: transparent;
+    color: var(--pub-ink);
+    font: inherit;
+
+    &::placeholder {
+      color: color-mix(in srgb, var(--pub-ink) 45%, transparent);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &:has(input:focus-visible) {
+    box-shadow:
+      inset 3px 3px 7px var(--pub-neu-dark),
+      inset -3px -3px 7px var(--pub-neu-light),
+      0 0 0 3px color-mix(in srgb, var(--pub-primary) 28%, transparent);
+  }
+}
+
+.navbar-pill__nav {
+  display: flex;
+  flex: none;
   align-items: center;
   gap: 4px;
 }
 
-.admin-link {
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.15s, color 0.15s;
-
-  &:hover {
-    color: var(--primary-dark);
-    background: var(--primary-soft);
-  }
-}
-
-.cart-link {
+.cart-link-pub {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 44px;
-  padding: 0 14px;
-  border-radius: var(--radius-sm);
-  color: var(--text);
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--pub-ink);
   font-weight: 600;
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    box-shadow 0.15s,
+    color 0.15s;
 
   &:hover,
-  &.active {
-    background: var(--primary-soft);
-    color: var(--primary-dark);
+  &.activo {
+    color: var(--pub-primary-dark);
+    box-shadow:
+      inset 3px 3px 7px var(--pub-neu-dark),
+      inset -3px -3px 7px var(--pub-neu-light);
   }
 }
 
-.badge {
-  min-width: 22px;
+.badge-pub {
+  min-width: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--secondary);
-  color: var(--on-color);
-  font-size: 0.76rem;
+  background: var(--pub-yellow);
+  color: var(--pub-ink);
+  font-size: 0.72rem;
   font-weight: 700;
-  line-height: 22px;
+  line-height: 20px;
   text-align: center;
+}
+
+.admin-link-pub {
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--pub-ink) 55%, transparent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    box-shadow 0.15s,
+    color 0.15s;
+
+  &:hover {
+    color: var(--pub-primary-dark);
+    box-shadow:
+      inset 2px 2px 5px var(--pub-neu-dark),
+      inset -2px -2px 5px var(--pub-neu-light);
+  }
+}
+
+@media (max-width: 640px) {
+  .brand-pub__texto {
+    display: none;
+  }
+
+  .cart-link-pub__texto {
+    display: none;
+  }
 }
