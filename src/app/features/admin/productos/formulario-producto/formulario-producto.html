@@ -1,13 +1,25 @@
-<a routerLink="/admin/productos" class="volver">← Volver al inventario</a>
+<a routerLink="/admin/productos" class="pub-volver volver">
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+    <path
+      d="M15 6l-6 6 6 6"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+  Volver al inventario
+</a>
 
-<h1 class="page-title">{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+<h1 class="titulo">{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h1>
 
 @if (cargando()) {
   <p class="estado" role="status">Cargando producto…</p>
 } @else if (noEncontrado()) {
   <p class="estado">Producto no encontrado.</p>
 } @else {
-  <form class="card formulario" (submit)="guardar($event)">
+  <form class="formulario" (submit)="guardar($event)">
     <div class="field">
       <label for="nombre">Nombre</label>
       <input
@@ -58,15 +70,17 @@
         (input)="margenPct.set($any($event.target).value)"
       />
       @if (precioFinalEstimado() !== null) {
-        <p class="ganancia-preview muted">
+        <p class="ganancia-preview">
           Precio final al público:
-          <strong>{{ precioFinalEstimado()! | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+          <strong>{{
+            precioFinalEstimado()! | currency: moneda : 'symbol-narrow' : '1.0-0'
+          }}</strong>
           · Ganancia por unidad:
           <strong>{{ gananciaEstimada()! | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
           (precio final − precio original).
         </p>
       } @else {
-        <p class="ganancia-preview muted">
+        <p class="nota">
           Ingresa un precio y un porcentaje entre 0 y 99.99 para calcular el precio al público.
         </p>
       }
@@ -123,7 +137,7 @@
         [value]="cantidad()"
         (input)="cantidad.set($any($event.target).value)"
       />
-      <p class="ganancia-preview muted">
+      <p class="nota">
         Al finalizar un pedido con este producto, se descuenta automáticamente. Puede quedar en
         negativo si vendes más de lo que tienes: eso indica cuánto falta por reponer.
       </p>
@@ -136,7 +150,7 @@
           <app-producto-imagen [url]="imagenMostrada()" [alt]="nombre() || 'Producto'" />
         </div>
         <div class="imagen__acciones">
-          <label class="btn btn-outline btn-sm">
+          <label class="pub-boton-sec pub-boton--sm">
             {{ imagenMostrada() ? 'Cambiar imagen' : 'Subir imagen' }}
             <input
               type="file"
@@ -146,7 +160,11 @@
             />
           </label>
           @if (imagenMostrada()) {
-            <button type="button" class="btn btn-danger-ghost btn-sm" (click)="descartarImagen()">
+            <button
+              type="button"
+              class="pub-boton-peligro pub-boton--sm"
+              (click)="descartarImagen()"
+            >
               Quitar imagen
             </button>
           }
@@ -171,10 +189,10 @@
     }
 
     <div class="acciones">
-      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+      <button type="submit" class="pub-boton" [disabled]="guardando()">
         {{ guardando() ? 'Guardando…' : 'Guardar producto' }}
       </button>
-      <a routerLink="/admin/productos" class="btn btn-outline">Cancelar</a>
+      <a routerLink="/admin/productos" class="pub-boton-sec">Cancelar</a>
     </div>
   </form>
 }

@@ -177,6 +177,111 @@ Mismo estilo neumórfico y paleta; la funcionalidad no cambió.
 - Celular: cada fila del carrito se reorganiza en dos líneas y el resumen
   pasa debajo de la lista.
 
+PASO 7: LOGIN DEL ADMINISTRADOR  [HECHO]
+------------------------------------------
+Primera pantalla de la etapa de admin: el login pasa al estilo público
+(neumorfismo + paleta nueva). La lógica de inicio de sesión no cambia.
+- Sin navbar: arriba solo va el logo GERDMART centrado (estilo público), que
+  lleva al catálogo. El resto de /admin sigue con su barra actual.
+- Tarjeta centrada en relieve (esquinas muy redondeadas, sin borde), ancho
+  máximo ~440 px.
+- Arriba: círculo hundido con el ícono de candado en verde, título
+  "Ingreso administrador" en ink y la descripción en gris suave.
+- Campos Correo y Contraseña "hundidos" (sombra interior), con un ícono a la
+  izquierda dentro del campo (sobre y candado). Al enfocarlos aparece un
+  anillo verde suave.
+- Error: aviso suave en rojo con esquinas redondeadas, dentro de la tarjeta.
+- Botón "Ingresar" verde en pastilla, a todo el ancho (.pub-boton).
+- "Volver al catálogo" con el botón en relieve .pub-volver, debajo.
+- Animación de entrada: la tarjeta aparece con un leve fundido y
+  desplazamiento hacia arriba (respeta "reducir movimiento").
+- Celular: la tarjeta ocupa el ancho disponible con menos relleno.
+- Sin scroll: la pantalla del login ocupa exactamente el alto de la ventana
+  y no se desplaza; la tarjeta queda centrada debajo del logo.
+
+PASO 8: BARRA DE SCROLL DEL CATÁLOGO  [HECHO]
+-----------------------------------------------
+- Solo en la página de productos (catálogo). El resto de páginas sigue con
+  la barra oculta como antes.
+- Barra propia con la paleta pública: carril hundido en el gris suave y
+  agarradera en pastilla con degradado verde (se oscurece al pasar el mouse).
+- Firefox no permite tanto detalle: ahí se ve una barra delgada verde sobre
+  el gris suave.
+
+PASO 9: ADMIN - PEDIDOS (LISTA + DETALLE) Y BARRA DEL ADMIN  [HECHO]
+----------------------------------------------------------------------
+Mismo neumorfismo y paleta pública. La funcionalidad no cambia: mismos
+botones, filtros, textos y acciones, solo cambia cómo se ven.
+Barra del admin (afecta también a Inventario y Ganancias):
+- La barra blanca de arriba con el logo pasa a ser el navbar flotante en
+  vidrio esmerilado, igual al público, con solo el logo GERDMART.
+- Pestañas Pedidos / Inventario / Ganancias: carril hundido; la pestaña
+  activa sale en relieve con texto verde.
+- Correo del admin en pastilla mint y "Cerrar sesión" como botón en relieve.
+Lista de pedidos:
+- Botón "Actualizar" en relieve. Buscador hundido con la lupa.
+- Filtros Todos / Pendientes / Finalizados como pastillas en relieve; la
+  activa se ve hundida en verde (igual que los filtros del catálogo).
+- Barra de selección en mint con esquinas redondeadas.
+- Cada pedido es una fila en relieve; al pasar el mouse sube un poco; si está
+  seleccionado lleva un anillo verde. Código en verde oscuro, estado en
+  pastilla (pendiente en amarillo suave, finalizado en mint) y el botón de
+  basura redondo que se pone rojo al pasar el mouse.
+Detalle del pedido:
+- "Volver a pedidos" con el botón en relieve .pub-volver.
+- Productos y Datos del comprador en paneles en relieve.
+- Total en panel hundido con el monto grande en verde oscuro; la ganancia
+  en una franja mint debajo.
+- Campos del comprador hundidos (como el login); aviso de seguridad en
+  amarillo suave; "Finalizar pedido" / "Guardar cambios" en botón verde y
+  Cancelar / Editar datos / Descargar factura en botón en relieve;
+  "Eliminar pedido" en relieve con texto rojo.
+Piezas reutilizables nuevas en styles.scss para el resto del admin:
+.pub-boton-sec (botón en relieve) y .pub-boton-peligro (relieve, texto rojo).
+
+PASO 10: ADMIN - INVENTARIO (LISTA + FORMULARIO DE PRODUCTO)  [HECHO]
+-----------------------------------------------------------------------
+Mismo neumorfismo y paleta pública. La funcionalidad no cambia: mismos
+filtros, botones, textos, el punto oculto del título y su ventana.
+Lista del inventario:
+- Título y descripción en ink; "Nuevo producto" en botón verde (.pub-boton).
+- Buscador hundido con lupa (igual al de pedidos).
+- Filtros de stock y de etiquetas como pastillas en relieve; el activo se
+  ve hundido en verde ("Con falta de stock" activo se ve hundido en rojo).
+- Selector de marca y precio mín./máx.: campos hundidos en pastilla (el
+  selector de marca sigue siendo el nativo, solo cambia su aspecto).
+- Aviso de faltantes en rojo suave redondeado; "Ver cuáles" en relieve.
+- Cada producto en fila en relieve; imagen con esquinas redondeadas;
+  pastillas de estado: activo en mint, inactivo en gris, stock bajo en
+  amarillo suave, faltante en rojo suave, etiquetas en gris.
+- "Editar" en relieve; "Desactivar" en relieve con texto rojo y "Activar"
+  en relieve verde.
+- Ventana de "Datos del inventario": panel en relieve sobre fondo oscurecido
+  con desenfoque; la cifra en verde oscuro grande; botón cerrar redondo.
+Formulario de producto:
+- "Volver al inventario" con el botón en relieve .pub-volver.
+- El formulario en un panel en relieve; campos y área de texto hundidos.
+- Vista previa del precio al público y la ganancia en franja mint.
+- Recuadro de imagen hundido; "Subir/Cambiar imagen" en relieve y
+  "Quitar imagen" en relieve con texto rojo.
+- Casillas con el verde de la paleta.
+- "Guardar producto" en botón verde y "Cancelar" en relieve.
+
+PASO 11: ADMIN - GANANCIAS  [HECHO]
+-------------------------------------
+Mismo neumorfismo y paleta pública. La funcionalidad no cambia: mismas
+vistas, periodos, cifras y textos.
+- Título y descripción en ink; "Actualizar" en relieve.
+- Selector Tarjetas / Gráficos y selector de periodo (14 días / 6 meses)
+  como pastillas en relieve; la activa se ve hundida en verde.
+- Tarjetas Hoy / Este mes: paneles en relieve (sin la franja de color de
+  arriba); ícono en círculo hundido verde; ganancia grande en verde oscuro;
+  pie con las ventas y el margen en pastilla mint.
+- Gráfico: panel en relieve (sin franja de color); total en verde oscuro.
+  Barras de ventas en azul salud suave y de ganancia en degradado verde;
+  líneas guía tenues; leyenda en gris suave.
+- Nota final en gris suave.
+
 PENDIENTE (resumen)
 ---------------------
 - Hechos y vigentes: navbar flotante (1), fila de filtros (4), tarjetas de
@@ -188,3 +293,5 @@ PENDIENTE (resumen)
 - Diseño completo para celular: se deja para una etapa aparte (por ahora
   solo se aseguró que no se rompa).
 - La confirmación de pedido todavía tiene el diseño anterior.
+- Etapa admin: login (7), pedidos y barra del admin (9), inventario (10) y
+  ganancias (11) hechos. Todo el admin quedó con el estilo nuevo.

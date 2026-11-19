@@ -6,9 +6,11 @@
   </nav>
   <div class="admin-bar__sesion">
     @if (auth.sesion()?.user?.email; as correo) {
-      <span class="muted correo">{{ correo }}</span>
+      <span class="correo">{{ correo }}</span>
     }
-    <button type="button" class="btn btn-outline btn-sm" (click)="salir()">Cerrar sesión</button>
+    <button type="button" class="pub-boton-sec pub-boton--sm" (click)="salir()">
+      Cerrar sesión
+    </button>
   </div>
 </div>
 

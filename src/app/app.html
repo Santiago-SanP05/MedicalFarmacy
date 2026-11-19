@@ -1,24 +1,35 @@
-@if (enAdmin()) {
-  <header class="topbar">
-    <div class="topbar__accent"></div>
-    <div class="container topbar__inner">
-      <a routerLink="/" class="brand" aria-label="GERDMART, ir al catálogo">
-        <span class="brand__mark">
+@if (enLogin()) {
+  <div class="login-pantalla">
+    <header class="login-logo">
+      <a routerLink="/" class="brand-pub" aria-label="GERDMART, ir al catálogo">
+        <span class="brand-pub__mark">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path
-              d="M12 5v14M5 12h14"
-              style="stroke: var(--on-color)"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
+            <path d="M12 5v14M5 12h14" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
           </svg>
         </span>
-        <span>GERD<strong>MART</strong></span>
+        <span class="brand-pub__texto">GERD<strong>MART</strong></span>
+      </a>
+    </header>
+
+    <main class="container login-pantalla__contenido">
+      <router-outlet />
+    </main>
+  </div>
+} @else if (enAdmin()) {
+  <header class="navbar-flotante">
+    <div class="navbar-pill">
+      <a routerLink="/" class="brand-pub" aria-label="GERDMART, ir al catálogo">
+        <span class="brand-pub__mark">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="brand-pub__texto">GERD<strong>MART</strong></span>
       </a>
     </div>
   </header>
 
-  <main class="container page">
+  <main class="container page page--flotante">
     <router-outlet />
   </main>
 } @else {
@@ -27,12 +38,7 @@
       <a routerLink="/" class="brand-pub" aria-label="GERDMART, ir al catálogo">
         <span class="brand-pub__mark">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path
-              d="M12 5v14M5 12h14"
-              stroke="#ffffff"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
+            <path d="M12 5v14M5 12h14" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
           </svg>
         </span>
         <span class="brand-pub__texto">GERD<strong>MART</strong></span>
@@ -78,9 +84,11 @@
           </svg>
           <span class="cart-link-pub__texto">Carrito</span>
           @if (carrito.cantidadTotal() > 0) {
-            <span class="badge-pub" aria-label="{{ carrito.cantidadTotal() }} productos en el carrito">{{
-              carrito.cantidadTotal()
-            }}</span>
+            <span
+              class="badge-pub"
+              aria-label="{{ carrito.cantidadTotal() }} productos en el carrito"
+              >{{ carrito.cantidadTotal() }}</span
+            >
           }
         </a>
         <a routerLink="/admin/login" class="admin-link-pub">Admin</a>

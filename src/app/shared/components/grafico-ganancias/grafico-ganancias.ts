@@ -46,8 +46,9 @@ import { PuntoGrafico } from '../../models/ganancia.model';
       display: flex;
       gap: 16px;
       margin-bottom: 14px;
-      color: var(--muted);
+      color: color-mix(in srgb, var(--pub-ink) 60%, transparent);
       font-size: 0.85rem;
+      font-weight: 600;
     }
 
     .leyenda__item {
@@ -64,11 +65,11 @@ import { PuntoGrafico } from '../../models/ganancia.model';
     }
 
     .muestra--ventas {
-      background: var(--neutral);
+      background: color-mix(in srgb, var(--pub-blue) 35%, var(--pub-surface));
     }
 
     .muestra--ganancia {
-      background: var(--primary);
+      background: var(--pub-primary);
     }
 
     .grafico {
@@ -77,13 +78,13 @@ import { PuntoGrafico } from '../../models/ganancia.model';
       gap: 12px;
       height: 220px;
       padding: 12px 6px 0;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--pub-neu-dark);
       background-image: repeating-linear-gradient(
         to top,
         transparent 0,
         transparent calc(25% - 1px),
-        var(--border) calc(25% - 1px),
-        var(--border) 25%
+        color-mix(in srgb, var(--pub-neu-dark) 55%, transparent) calc(25% - 1px),
+        color-mix(in srgb, var(--pub-neu-dark) 55%, transparent) 25%
       );
       background-size: 100% 100%;
       background-repeat: no-repeat;
@@ -111,7 +112,7 @@ import { PuntoGrafico } from '../../models/ganancia.model';
     .barra {
       flex: 1;
       min-height: 3px;
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      border-radius: 8px 8px 0 0;
       transition:
         opacity 0.15s,
         transform 0.15s;
@@ -124,18 +125,18 @@ import { PuntoGrafico } from '../../models/ganancia.model';
     }
 
     .barra--ventas {
-      background: var(--neutral);
+      background: color-mix(in srgb, var(--pub-blue) 35%, var(--pub-surface));
     }
 
     .barra--ganancia {
-      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
-      box-shadow: 0 2px 6px -2px color-mix(in srgb, var(--primary) 60%, transparent);
+      background: linear-gradient(180deg, var(--pub-primary), var(--pub-primary-dark));
+      box-shadow: 0 2px 6px -2px color-mix(in srgb, var(--pub-primary) 60%, transparent);
     }
 
     .etiqueta {
       overflow: hidden;
       max-width: 100%;
-      color: var(--muted);
+      color: color-mix(in srgb, var(--pub-ink) 55%, transparent);
       font-size: 0.7rem;
       line-height: 1.2;
       text-align: center;

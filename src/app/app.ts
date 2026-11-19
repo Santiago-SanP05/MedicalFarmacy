@@ -1,4 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -24,6 +25,17 @@ export class App {
     { initialValue: this.router.url },
   );
 
-  protected readonly enAdmin = computed(() => this.url().startsWith('/admin'));
+  /** El login no lleva navbar: solo el logo arriba. */
+  protected readonly enLogin = computed(() => this.url().startsWith('/admin/login'));
+  protected readonly enAdmin = computed(() => this.url().startsWith('/admin') && !this.enLogin());
   protected readonly enCatalogo = computed(() => this.url() === '/');
+
+  constructor() {
+    // Clases en <html> para el scroll: el login no se desplaza y el catálogo tiene barra propia.
+    const html = inject(DOCUMENT).documentElement;
+    effect(() => {
+      html.classList.toggle('sin-scroll', this.enLogin());
+      html.classList.toggle('scroll-catalogo', this.enCatalogo());
+    });
+  }
 }

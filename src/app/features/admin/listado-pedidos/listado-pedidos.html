@@ -1,9 +1,14 @@
 <div class="encabezado">
   <div>
-    <h1 class="page-title">Pedidos</h1>
-    <p class="muted">Busca por código, filtra por estado o elimina pedidos antiguos.</p>
+    <h1 class="titulo">Pedidos</h1>
+    <p class="subtitulo">Busca por código, filtra por estado o elimina pedidos antiguos.</p>
   </div>
-  <button type="button" class="btn btn-outline btn-sm" [disabled]="cargando()" (click)="cargar()">
+  <button
+    type="button"
+    class="pub-boton-sec pub-boton--sm"
+    [disabled]="cargando()"
+    (click)="cargar()"
+  >
     Actualizar
   </button>
 </div>
@@ -42,12 +47,12 @@
   <div class="barra-seleccion">
     <span>{{ seleccionados().size }} seleccionado{{ seleccionados().size === 1 ? '' : 's' }}</span>
     <div class="barra-seleccion__acciones">
-      <button type="button" class="btn btn-outline btn-sm" (click)="limpiarSeleccion()">
+      <button type="button" class="pub-boton-sec pub-boton--sm" (click)="limpiarSeleccion()">
         Cancelar
       </button>
       <button
         type="button"
-        class="btn btn-danger-ghost btn-sm"
+        class="pub-boton-peligro pub-boton--sm"
         [disabled]="eliminando()"
         (click)="eliminarSeleccionados()"
       >
@@ -62,7 +67,7 @@
 } @else if (error()) {
   <div class="alert alert-error" role="alert">
     <span>{{ error() }}</span>
-    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+    <button type="button" class="pub-boton-sec pub-boton--sm" (click)="cargar()">Reintentar</button>
   </div>
 } @else if (visibles().length === 0) {
   <p class="estado">
@@ -71,7 +76,7 @@
 } @else {
   <ul class="lista">
     @for (p of visibles(); track p.id) {
-      <li class="card fila" [class.fila--seleccionada]="estaSeleccionado(p.id)">
+      <li class="fila" [class.fila--seleccionada]="estaSeleccionado(p.id)">
         @if (p.estado === 'pendiente') {
           <input
             type="checkbox"
@@ -93,7 +98,9 @@
           >
             {{ p.estado === 'pendiente' ? 'Pendiente' : 'Finalizado' }}
           </span>
-          <span class="fila__comprador">{{ p.comprador?.nombre ?? 'Sin datos del comprador' }}</span>
+          <span class="fila__comprador">{{
+            p.comprador?.nombre ?? 'Sin datos del comprador'
+          }}</span>
           <div class="fila__total">
             <span class="fila__total-monto">{{
               p.total | currency: moneda : 'symbol-narrow' : '1.0-0'
@@ -102,7 +109,7 @@
               {{ p.ganancia_total | currency: moneda : 'symbol-narrow' : '1.0-0' }} ganancia
             </span>
           </div>
-          <span class="muted fila__fecha">{{ p.fecha_creacion | date: 'dd/MM/yyyy h:mm a' }}</span>
+          <span class="fila__fecha">{{ p.fecha_creacion | date: 'dd/MM/yyyy h:mm a' }}</span>
         </a>
         @if (p.estado === 'pendiente') {
           <button

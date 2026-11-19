@@ -1,53 +1,28 @@
-/* ===== Header del admin (sin cambios de diseño) ===== */
+/* ===== Login: solo el logo arriba, sin navbar ===== */
 
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 0 rgb(14 27 42 / 0.03);
-}
-
-.topbar__accent {
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-}
-
-.topbar__inner {
+.login-pantalla {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 64px;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
 }
 
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--primary);
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-
-  span {
-    color: var(--text);
-  }
-
-  strong {
-    color: var(--primary);
-  }
+.login-logo {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  padding-top: 36px;
+  font-size: 1.25rem;
 }
 
-.brand__mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(155deg, var(--primary), var(--primary-dark));
-  box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--primary) 60%, transparent);
+/* El login queda centrado en el espacio libre debajo del logo */
+.login-pantalla__contenido {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  padding-block: 16px 52px;
 }
 
 /* ===== Navbar flotante del público (neumorfismo) ===== */
@@ -74,9 +49,9 @@
   background: color-mix(in srgb, var(--pub-surface) 86%, transparent);
   backdrop-filter: blur(14px) saturate(1.4);
   box-shadow:
-    10px 10px 24px var(--pub-neu-dark),
-    -10px -10px 24px var(--pub-neu-light),
-    0 20px 40px -20px color-mix(in srgb, var(--pub-ink) 40%, transparent);
+    4px 4px 10px var(--pub-neu-dark),
+    -4px -4px 10px var(--pub-neu-light),
+    0 8px 16px -10px color-mix(in srgb, var(--pub-ink) 30%, transparent);
   pointer-events: auto;
 }
 

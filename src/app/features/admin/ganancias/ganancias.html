@@ -1,11 +1,16 @@
 <div class="encabezado">
   <div>
-    <h1 class="page-title">Ganancias</h1>
-    <p class="muted">
+    <h1 class="titulo">Ganancias</h1>
+    <p class="subtitulo">
       Calculadas con el % de ganancia de cada producto sobre sus pedidos finalizados.
     </p>
   </div>
-  <button type="button" class="btn btn-outline btn-sm" [disabled]="cargando()" (click)="cargar()">
+  <button
+    type="button"
+    class="pub-boton-sec pub-boton--sm"
+    [disabled]="cargando()"
+    (click)="cargar()"
+  >
     Actualizar
   </button>
 </div>
@@ -36,12 +41,12 @@
 } @else if (error()) {
   <div class="alert alert-error" role="alert">
     <span>{{ error() }}</span>
-    <button type="button" class="btn btn-outline btn-sm" (click)="cargar()">Reintentar</button>
+    <button type="button" class="pub-boton-sec pub-boton--sm" (click)="cargar()">Reintentar</button>
   </div>
 } @else if (resumen(); as r) {
   @if (vista() === 'tarjetas') {
     <div class="grid-tarjetas">
-      <section class="card tarjeta">
+      <section class="tarjeta">
         <div class="tarjeta__cabecera">
           <span class="tarjeta__icono" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20">
@@ -56,16 +61,16 @@
               <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2" />
             </svg>
           </span>
-          <h2 class="section-title">Hoy</h2>
+          <h2 class="tarjeta__titulo">Hoy</h2>
         </div>
 
         <div class="tarjeta__ganancia">
-          <span class="muted">Ganancia</span>
+          <span class="tenue">Ganancia</span>
           <strong>{{ r.ganancia_hoy | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
         </div>
 
         <div class="tarjeta__pie">
-          <span class="muted"
+          <span class="tenue"
             >Ventas: {{ r.ventas_hoy | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span
           >
           <span class="chip chip-finalizado"
@@ -74,7 +79,7 @@
         </div>
       </section>
 
-      <section class="card tarjeta">
+      <section class="tarjeta">
         <div class="tarjeta__cabecera">
           <span class="tarjeta__icono" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20">
@@ -97,16 +102,16 @@
               />
             </svg>
           </span>
-          <h2 class="section-title">Este mes</h2>
+          <h2 class="tarjeta__titulo">Este mes</h2>
         </div>
 
         <div class="tarjeta__ganancia">
-          <span class="muted">Ganancia</span>
+          <span class="tenue">Ganancia</span>
           <strong>{{ r.ganancia_mes | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
         </div>
 
         <div class="tarjeta__pie">
-          <span class="muted"
+          <span class="tenue"
             >Ventas: {{ r.ventas_mes | currency: moneda : 'symbol-narrow' : '1.0-0' }}</span
           >
           <span class="chip chip-finalizado"
@@ -142,24 +147,26 @@
     } @else if (errorSerie()) {
       <div class="alert alert-error" role="alert">
         <span>{{ errorSerie() }}</span>
-        <button type="button" class="btn btn-outline btn-sm" (click)="cargarSerie()">
+        <button type="button" class="pub-boton-sec pub-boton--sm" (click)="cargarSerie()">
           Reintentar
         </button>
       </div>
     } @else {
-      <div class="card grafico-card">
+      <div class="grafico-card">
         <div class="grafico-card__cabecera">
-          <span class="muted">{{
+          <span class="tenue">{{
             periodo() === 'diario' ? 'Ganancia · últimos 14 días' : 'Ganancia · últimos 6 meses'
           }}</span>
-          <strong>{{ totalSerie().ganancia | currency: moneda : 'symbol-narrow' : '1.0-0' }}</strong>
+          <strong>{{
+            totalSerie().ganancia | currency: moneda : 'symbol-narrow' : '1.0-0'
+          }}</strong>
         </div>
         <app-grafico-ganancias [datos]="serie()" [moneda]="moneda" />
       </div>
     }
   }
 
-  <p class="muted nota">
+  <p class="nota">
     Solo cuentan los pedidos <strong>finalizados</strong>. La ganancia usa el % que tenía cada
     producto en el momento del pedido, así que si luego cambias el porcentaje, no se altera lo ya
     vendido.

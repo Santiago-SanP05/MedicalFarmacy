@@ -3,40 +3,43 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 nav {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  background: var(--neutral);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--pub-bg);
+  box-shadow:
+    inset 4px 4px 9px var(--pub-neu-dark),
+    inset -4px -4px 9px var(--pub-neu-light);
 }
 
 nav a {
   display: inline-block;
-  padding: 8px 16px;
-  border-radius: calc(var(--radius-sm) - 2px);
-  color: var(--muted);
-  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--pub-ink) 60%, transparent);
   font-size: 0.92rem;
+  font-weight: 700;
   text-decoration: none;
   transition:
-    background 0.15s,
+    box-shadow 0.2s,
     color 0.15s;
 
   &:hover {
-    color: var(--primary-dark);
+    color: var(--pub-primary-dark);
   }
 
   &.active {
-    background: var(--surface);
-    color: var(--primary-dark);
-    box-shadow: var(--shadow-sm);
+    background: var(--pub-bg);
+    color: var(--pub-primary-dark);
+    box-shadow:
+      4px 4px 9px var(--pub-neu-dark),
+      -4px -4px 9px var(--pub-neu-light);
   }
 }
 
@@ -48,10 +51,10 @@ nav a {
 
 .correo {
   display: none;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 999px;
-  background: var(--primary-soft);
-  color: var(--primary-dark);
+  background: var(--pub-mint);
+  color: var(--pub-primary-dark);
   font-size: 0.85rem;
   font-weight: 600;
 }

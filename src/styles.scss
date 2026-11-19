@@ -32,13 +32,7 @@
   --border: #dfe6ea;
 
   /* ============ Tipografía ============ */
-  --font-sans:
-    'Inter',
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Consolas, monospace;
 
   /* ============ Layout ============ */
@@ -82,6 +76,50 @@ html {
 
 html::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge */
+}
+
+/* Login: la página no se desplaza */
+html.sin-scroll,
+html.sin-scroll body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Catálogo: barra de scroll propia, estilo neumórfico con la paleta pública.
+   scrollbar-width/color se dejan solo para Firefox: en Chrome/Edge anulan los
+   estilos ::-webkit-scrollbar. */
+html.scroll-catalogo {
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
+}
+
+@supports (-moz-appearance: none) {
+  html.scroll-catalogo {
+    scrollbar-width: thin;
+    scrollbar-color: var(--pub-primary) var(--pub-bg);
+  }
+}
+
+html.scroll-catalogo::-webkit-scrollbar {
+  display: block;
+  width: 14px;
+}
+
+html.scroll-catalogo::-webkit-scrollbar-track {
+  background: var(--pub-bg);
+  box-shadow:
+    inset 3px 0 6px var(--pub-neu-dark),
+    inset -2px 0 4px var(--pub-neu-light);
+}
+
+html.scroll-catalogo::-webkit-scrollbar-thumb {
+  border: 3px solid var(--pub-bg);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--pub-primary), var(--pub-primary-dark));
+}
+
+html.scroll-catalogo::-webkit-scrollbar-thumb:hover {
+  background: var(--pub-primary-dark);
 }
 
 body {
@@ -366,6 +404,58 @@ ul {
 
 .pub-boton--bloque {
   width: 100%;
+}
+
+/* Botón secundario en relieve (acciones que no son la principal) */
+.pub-boton-sec,
+.pub-boton-peligro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--pub-bg);
+  color: var(--pub-primary-dark);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    5px 5px 11px var(--pub-neu-dark),
+    -5px -5px 11px var(--pub-neu-light);
+  transition:
+    box-shadow 0.15s,
+    color 0.15s;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      3px 3px 7px var(--pub-neu-dark),
+      -3px -3px 7px var(--pub-neu-light);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      inset 3px 3px 7px var(--pub-neu-dark),
+      inset -3px -3px 7px var(--pub-neu-light);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.pub-boton-peligro {
+  color: var(--danger);
+}
+
+.pub-boton--sm {
+  min-height: 38px;
+  padding: 0 16px;
 }
 
 .pub-volver {
