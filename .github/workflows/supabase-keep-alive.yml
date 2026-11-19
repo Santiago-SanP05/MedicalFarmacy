@@ -1,11 +1,19 @@
 name: Supabase keep-alive
 
 # Supabase pausa los proyectos gratuitos tras 1 semana sin actividad.
-# Este job hace una consulta liviana dos veces por semana para que nunca llegue a esa semana.
+# Este job hace una consulta liviana a la base de datos todos los días, así nunca llega a esa semana.
+#
+# IMPORTANTE:
+# - GitHub solo ejecuta los "schedule" desde la rama por defecto (main). Este archivo debe estar en main.
+# - Necesita los secrets SUPABASE_URL y SUPABASE_ANON_KEY (Settings > Secrets and variables > Actions)
+#   apuntando al proyecto de producción.
 on:
   schedule:
-    - cron: '0 12 * * 1,4' # lunes y jueves, 12:00 UTC
+    - cron: '0 12 * * *' # todos los días, 12:00 UTC (7:00 a. m. Colombia)
   workflow_dispatch: {} # permite ejecutarlo a mano desde la pestaña Actions
+
+permissions:
+  actions: write # para volver a habilitar este workflow (ver el último paso)
 
 jobs:
   ping:
@@ -16,14 +24,34 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          codigo=$(curl -s -o /dev/null -w "%{http_code}" \
-            "$SUPABASE_URL/rest/v1/productos?select=id&limit=1" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
-
-          echo "Código de respuesta: $codigo"
-
-          if [ "$codigo" -ge 400 ]; then
-            echo "Supabase respondió con error. Revisa si el proyecto está pausado o si cambió la anon key."
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Faltan los secrets SUPABASE_URL o SUPABASE_ANON_KEY en el repositorio."
             exit 1
           fi
+
+          # Hasta 3 intentos por si Supabase o la red fallan un momento.
+          for intento in 1 2 3; do
+            codigo=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+              "$SUPABASE_URL/rest/v1/productos?select=id&limit=1" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+            echo "Intento $intento - código de respuesta: $codigo"
+
+            # Solo un 2xx cuenta como éxito (000 = no hubo conexión).
+            if [ "$codigo" -ge 200 ] && [ "$codigo" -lt 300 ]; then
+              echo "Supabase respondió bien."
+              exit 0
+            fi
+            sleep 20
+          done
+
+          echo "::error::Supabase no respondió bien. Revisa si el proyecto está pausado o si cambió la URL o la anon key."
+          exit 1
+
+      # GitHub desactiva los workflows programados si el repositorio pasa 60 días sin commits.
+      # Volver a habilitarlo en cada ejecución evita que el keep-alive se apague solo.
+      - name: Mantener activo este workflow
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable supabase-keep-alive.yml --repo "$GITHUB_REPOSITORY"
